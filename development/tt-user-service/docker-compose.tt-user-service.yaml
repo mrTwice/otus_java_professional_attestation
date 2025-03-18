@@ -1,0 +1,41 @@
+services:
+  user-service-postgres:
+    build:
+      context: ../../tt-user-service
+      dockerfile: ../../tt-user-service/Dockerfile
+      args:
+        - NO_CACHE=true
+    image: postgres_custom_ru:latest
+    container_name: core-transfers-postgres
+    ports:
+      - "5450:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    healthcheck:
+      test: ["CMD", "pg_isready", "-q", "-U", "postgres"]
+      interval: 5s
+      timeout: 1s
+      retries: 3
+    volumes:
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - db-net
+
+  tt-user-service:
+    build:
+      context: ../../..
+      dockerfile: tt-user-service/Dockerfile
+      args:
+        - NO_CACHE=true
+    image: tt-user-service:latest
+    container_name: tt-user-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    ports:
+      - "9590:9590"
+    networks:
+      - db-net
+    depends_on:
+      task-service-postgres:
+        condition: service_healthy

@@ -1,0 +1,8 @@
+include:
+  - tt-task-service/docker-compose.tt-task-service.yaml
+  - tt-user-service/docker-compose.tt-user-service.yaml
+
+networks:
+  db-net:
+    name: db-net
+    driver: bridge
