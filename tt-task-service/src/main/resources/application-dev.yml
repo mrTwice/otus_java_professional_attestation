@@ -1,0 +1,13 @@
+server:
+  port: 9590
+spring:
+  application:
+    name: tt-task-service
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/tt_task_service
+    username: tt_task_service_admin
+    password: tt_task_service_admin
+  jpa:
+    show-sql: true
+    open-in-view: false

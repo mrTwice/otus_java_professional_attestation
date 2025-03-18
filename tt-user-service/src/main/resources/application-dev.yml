@@ -1,0 +1,13 @@
+server:
+  port: 9591
+spring:
+  application:
+    name: tt-user-service
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5433/tt_user_service
+    username: tt_user_service_admin
+    password: tt_user_service_admin
+  jpa:
+    show-sql: true
+    open-in-view: false
