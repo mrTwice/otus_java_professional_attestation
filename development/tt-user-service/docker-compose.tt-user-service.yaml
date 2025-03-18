@@ -1,12 +1,12 @@
 services:
   user-service-postgres:
     build:
-      context: ../../tt-user-service
-      dockerfile: ../../tt-user-service/Dockerfile
+      context: .
+      dockerfile: Dockerfile
       args:
         - NO_CACHE=true
     image: postgres_custom_ru:latest
-    container_name: core-transfers-postgres
+    container_name: user-service-postgres
     ports:
       - "5433:5432"
     environment:
@@ -22,20 +22,20 @@ services:
     networks:
       - db-net
 
-  tt-user-service:
-    build:
-      context: ../../..
-      dockerfile: tt-user-service/Dockerfile
-      args:
-        - NO_CACHE=true
-    image: tt-user-service:latest
-    container_name: tt-user-service
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-    ports:
-      - "9591:9591"
-    networks:
-      - db-net
-    depends_on:
-      task-service-postgres:
-        condition: service_healthy
+#  tt-user-service:
+#    build:
+#      context: ../../
+#      dockerfile: tt-user-service/Dockerfile
+#      args:
+#        - NO_CACHE=true
+#    image: tt-user-service:latest
+#    container_name: tt-user-service
+#    environment:
+#      - SPRING_PROFILES_ACTIVE=docker
+#    ports:
+#      - "9591:9591"
+#    networks:
+#      - db-net
+#    depends_on:
+#      task-service-postgres:
+#        condition: service_healthy

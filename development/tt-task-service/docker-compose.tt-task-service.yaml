@@ -6,7 +6,7 @@ services:
       args:
         - NO_CACHE=true
     image: postgres_custom_ru:latest
-    container_name: core-transfers-postgres
+    container_name: task-service-postgres
     ports:
       - "5432:5432"
     environment:
@@ -22,20 +22,20 @@ services:
     networks:
       - db-net
 
-  tt-task-service:
-    build:
-      context: ../../
-      dockerfile: tt-task-service/Dockerfile
-      args:
-        - NO_CACHE=true
-    image: tt-task-service:latest
-    container_name: tt-task-service
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-    ports:
-      - "9590:9590"
-    networks:
-      - db-net
-    depends_on:
-      task-service-postgres:
-        condition: service_healthy
+#  tt-task-service:
+#    build:
+#      context: ../../
+#      dockerfile: tt-task-service/Dockerfile
+#      args:
+#        - NO_CACHE=true
+#    image: tt-task-service:latest
+#    container_name: tt-task-service
+#    environment:
+#      - SPRING_PROFILES_ACTIVE=docker
+#    ports:
+#      - "9590:9590"
+#    networks:
+#      - db-net
+#    depends_on:
+#      task-service-postgres:
+#        condition: service_healthy
