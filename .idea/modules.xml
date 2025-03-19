@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/otus_java_professional_attestation.iml" filepath="$PROJECT_DIR$/.idea/otus_java_professional_attestation.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/tt-user-service.main.iml" filepath="$PROJECT_DIR$/.idea/modules/tt-user-service.main.iml" />
     </modules>
   </component>
 </project>
