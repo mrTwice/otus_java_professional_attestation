@@ -10,9 +10,7 @@ import ru.otus.java.professional.yampolskiy.ttuserservice.exceptions.DuplicateRe
 import ru.otus.java.professional.yampolskiy.ttuserservice.exceptions.ResourceNotFoundException;
 import ru.otus.java.professional.yampolskiy.ttuserservice.repositories.RoleRepository;
 import ru.otus.java.professional.yampolskiy.ttuserservice.repositories.UserRepository;
-import ru.otus.java.professional.yampolskiy.ttuserservice.validators.CommonUserValidator;
-import ru.otus.java.professional.yampolskiy.ttuserservice.validators.UserEmailValidator;
-import ru.otus.java.professional.yampolskiy.ttuserservice.validators.UserUniqueValidator;
+import ru.otus.java.professional.yampolskiy.ttuserservice.validators.Validator;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,9 +22,9 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-    private final CommonUserValidator commonUserValidator;
-    private final UserEmailValidator userEmailValidator;
-    private final UserUniqueValidator userUniqueValidator;
+    private final Validator<User> commonUserValidator;
+    private final Validator<User> userUniqueValidator;
+    private final Validator<String> userEmailValidator;
 
     @Override
     public User createUser(User user) {

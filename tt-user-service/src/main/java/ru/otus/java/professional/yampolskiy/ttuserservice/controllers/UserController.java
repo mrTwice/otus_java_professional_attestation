@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.otus.java.professional.yampolskiy.ttuserservice.dtos.UserDTO;
 import ru.otus.java.professional.yampolskiy.ttuserservice.dtos.UserResponseDTO;
 import ru.otus.java.professional.yampolskiy.ttuserservice.entities.User;
-import ru.otus.java.professional.yampolskiy.ttuserservice.mapping.UserMapper;
+import ru.otus.java.professional.yampolskiy.ttuserservice.mappers.UserMapper;
 import ru.otus.java.professional.yampolskiy.ttuserservice.services.UserService;
 
 import java.util.List;

@@ -1,10 +1,11 @@
-package ru.otus.java.professional.yampolskiy.ttuserservice.mapping;
+package ru.otus.java.professional.yampolskiy.ttuserservice.mappers;
 
 import lombok.RequiredArgsConstructor;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.Named;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import ru.otus.java.professional.yampolskiy.ttuserservice.dtos.UserDTO;
 import ru.otus.java.professional.yampolskiy.ttuserservice.dtos.UserResponseDTO;
@@ -15,10 +16,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
-@RequiredArgsConstructor
 public abstract class UserMapper {
 
-    private final PasswordEncoder passwordEncoder;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "password", qualifiedByName = "encodePassword")

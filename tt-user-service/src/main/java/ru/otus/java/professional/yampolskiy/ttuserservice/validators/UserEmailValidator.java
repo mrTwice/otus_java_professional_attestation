@@ -1,6 +1,5 @@
 package ru.otus.java.professional.yampolskiy.ttuserservice.validators;
 
-import org.springframework.stereotype.Component;
 import ru.otus.java.professional.yampolskiy.ttuserservice.entities.ValidationEmailPartError;
 import ru.otus.java.professional.yampolskiy.ttuserservice.exceptions.ValidationEmailException;
 
@@ -8,8 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-@Component
-public class UserEmailValidator {
+public class UserEmailValidator  implements Validator<String> {
 
     public void validate(String email) {
         List<ValidationEmailPartError> errors = new ArrayList<>();

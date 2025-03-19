@@ -1,13 +1,11 @@
 package ru.otus.java.professional.yampolskiy.ttuserservice.validators;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 import ru.otus.java.professional.yampolskiy.ttuserservice.entities.User;
 import ru.otus.java.professional.yampolskiy.ttuserservice.repositories.UserRepository;
 
-@Component
 @RequiredArgsConstructor
-public class CommonUserValidator {
+public class CommonUserValidator  implements Validator<User>  {
     private final UserRepository userRepository;
 
     public void validate(User user) {
