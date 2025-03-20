@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.otus.java.professional.yampolskiy.ttuserservice.dtos.UpdateUserDTO;
 import ru.otus.java.professional.yampolskiy.ttuserservice.dtos.UserDTO;
 import ru.otus.java.professional.yampolskiy.ttuserservice.dtos.UserResponseDTO;
 import ru.otus.java.professional.yampolskiy.ttuserservice.entities.User;
@@ -81,9 +82,9 @@ public class UserController {
     @PutMapping("/{id}")
     public ResponseEntity<UserResponseDTO> updateUser(
             @PathVariable Long id,
-            @RequestBody UserDTO userDTO
+            @RequestBody UpdateUserDTO updateUserDTO
     ) {
-        User user = userMapper.toEntity(userDTO);
+        User user = userMapper.toEntity(updateUserDTO);
         User updatedUser = userService.updateUser(id, user);
         UserResponseDTO responseDTO = userMapper.toResponseDTO(updatedUser);
         return ResponseEntity.ok(responseDTO);

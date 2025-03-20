@@ -3,6 +3,7 @@ package ru.otus.java.professional.yampolskiy.ttuserservice.services;
 import ru.otus.java.professional.yampolskiy.ttuserservice.entities.Role;
 
 import java.util.List;
+import java.util.Set;
 
 public interface RoleService {
 
@@ -17,4 +18,6 @@ public interface RoleService {
     Role updateRole(Long id, Role role);
 
     void deleteRole(Long id);
+
+    Set<Role> validateRoles(Set<Role> roles);
 }

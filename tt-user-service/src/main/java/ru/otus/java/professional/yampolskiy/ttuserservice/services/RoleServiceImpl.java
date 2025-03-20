@@ -6,11 +6,11 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.otus.java.professional.yampolskiy.ttuserservice.entities.Role;
 import ru.otus.java.professional.yampolskiy.ttuserservice.exceptions.ResourceNotFoundException;
 import ru.otus.java.professional.yampolskiy.ttuserservice.repositories.RoleRepository;
-import ru.otus.java.professional.yampolskiy.ttuserservice.validators.CommonRoleValidator;
-import ru.otus.java.professional.yampolskiy.ttuserservice.validators.RoleUniqueValidator;
 import ru.otus.java.professional.yampolskiy.ttuserservice.validators.Validator;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -62,5 +62,17 @@ public class RoleServiceImpl implements RoleService {
     public void deleteRole(Long id) {
         Role role = getRoleById(id);
         roleRepository.delete(role);
+    }
+
+    @Override
+    public Set<Role> validateRoles(Set<Role> roles) {
+        if (roles == null || roles.isEmpty()) {
+            roles = Set.of(new Role("USER"));
+        }
+
+        return roles.stream()
+                .map(role -> roleRepository.findByName(role.getName())
+                        .orElseGet(() -> createRole(new Role(role.getName()))))
+                .collect(Collectors.toSet());
     }
 }

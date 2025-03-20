@@ -14,6 +14,8 @@ import ru.otus.java.professional.yampolskiy.ttuserservice.validators.Validator;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +23,7 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
+    private final RoleServiceImpl roleService;
     private final Validator<User> commonUserValidator;
     private final Validator<User> userUniqueValidator;
     private final Validator<String> userEmailValidator;
@@ -31,6 +33,7 @@ public class UserServiceImpl implements UserService {
         commonUserValidator.validate(user);
         userEmailValidator.validate(user.getEmail());
         userUniqueValidator.validate(user);
+        user.setRoles(roleService.validateRoles(user.getRoles()));
         return userRepository.save(user);
     }
 
@@ -70,8 +73,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User addRoleToUser(Long userId, String roleName) {
         User user = getUserById(userId);
-        Role role = roleRepository.findByName(roleName)
-                .orElseThrow(() -> new ResourceNotFoundException("Role not found with name: " + roleName));
+        Role role = roleService.getRoleByName(roleName);
         user.getRoles().add(role);
         return userRepository.save(user);
     }
@@ -79,8 +81,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User removeRoleFromUser(Long userId, String roleName) {
         User user = getUserById(userId);
-        Role role = roleRepository.findByName(roleName)
-                .orElseThrow(() -> new ResourceNotFoundException("Role not found with name: " + roleName));
+        Role role = roleService.getRoleByName(roleName);
         user.getRoles().remove(role);
         return userRepository.save(user);
     }
@@ -90,13 +91,13 @@ public class UserServiceImpl implements UserService {
         User existingUser = getUserById(userId);
         existingUser.setUsername(user.getUsername());
         existingUser.setEmail(user.getEmail());
-        existingUser.setActive(user.isActive());
         return userRepository.save(existingUser);
     }
 
     @Override
     public void deleteUser(Long userId) {
         User user = getUserById(userId);
+        user.setActive(false);
         user.setDeletedAt(LocalDateTime.now());
         userRepository.save(user);
     }
