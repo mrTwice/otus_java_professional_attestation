@@ -2,10 +2,13 @@ package ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.reposit
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.entities.OAuth2AuthorizationEntity;
 
+import java.nio.channels.FileChannel;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,4 +37,7 @@ public interface OAuth2AuthorizationRepository extends JpaRepository<OAuth2Autho
 
     @Transactional(readOnly = true)
     List<OAuth2AuthorizationEntity> findByPrincipalName(String principal);
+
+    @Query("SELECT a FROM OAuth2AuthorizationEntity a WHERE a.accessTokenValue = :token OR a.refreshTokenValue = :token OR a.authorizationCodeValue = :token")
+    Optional<OAuth2AuthorizationEntity> findByTokenValue(@Param("token") String token);
 }

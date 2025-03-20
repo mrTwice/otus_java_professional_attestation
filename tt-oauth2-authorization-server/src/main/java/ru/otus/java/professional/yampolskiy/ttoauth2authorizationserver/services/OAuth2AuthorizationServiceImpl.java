@@ -3,15 +3,17 @@ package ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.service
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.dtos.OAuth2TokenIntrospectionResponse;
 import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.entities.OAuth2AuthorizationEntity;
 import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.exceptions.EntityNotFoundException;
 import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.repositories.OAuth2AuthorizationRepository;
 
-import java.util.List;
+import java.time.Instant;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-public class OAuth2AuthorizationService {
+public class OAuth2AuthorizationServiceImpl {
 
     private final OAuth2AuthorizationRepository authorizationRepository;
 
@@ -59,5 +61,25 @@ public class OAuth2AuthorizationService {
     public void revokeAllTokensForUser(String username) {
         List<OAuth2AuthorizationEntity> authorizations = authorizationRepository.findByPrincipalName(username);
         authorizationRepository.deleteAll(authorizations);
+    }
+
+    @Transactional(readOnly = true)
+    public OAuth2TokenIntrospectionResponse validateAccessToken(String accessTokenValue) {
+        OAuth2AuthorizationEntity authorization = authorizationRepository.findByAccessTokenValue(accessTokenValue)
+                .orElse(null);
+
+        if (authorization == null || authorization.getAccessTokenExpiresAt() == null ||
+                authorization.getAccessTokenExpiresAt().isBefore(Instant.now())) {
+            return OAuth2TokenIntrospectionResponse.builder()
+                    .active(false)
+                    .build();
+        }
+
+        return OAuth2TokenIntrospectionResponse.builder()
+                .active(true)
+                .clientId(authorization.getRegisteredClientId())
+                .scopes(Set.of(authorization.getAccessTokenScopes().split(",")))
+                .expiresAt(authorization.getAccessTokenExpiresAt())
+                .build();
     }
 }

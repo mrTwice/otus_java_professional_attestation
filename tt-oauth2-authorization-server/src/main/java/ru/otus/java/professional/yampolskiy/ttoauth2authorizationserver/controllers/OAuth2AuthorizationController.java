@@ -2,9 +2,11 @@ package ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.control
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.dtos.OAuth2TokenIntrospectionResponse;
 import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.entities.OAuth2AuthorizationEntity;
-import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.services.OAuth2AuthorizationService;
+import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.services.OAuth2AuthorizationServiceImpl;
 
 import java.util.List;
 
@@ -13,32 +15,18 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OAuth2AuthorizationController {
 
-    private final OAuth2AuthorizationService authorizationService;
+    private final OAuth2AuthorizationServiceImpl authorizationService;
 
     @GetMapping("/client/{clientId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<OAuth2AuthorizationEntity>> getAuthorizationsByClientId(@PathVariable String clientId) {
         return ResponseEntity.ok(authorizationService.getAuthorizationsByClientId(clientId));
     }
 
-    @GetMapping("/access/{token}")
-    public ResponseEntity<OAuth2AuthorizationEntity> getAuthorizationByAccessToken(@PathVariable String token) {
-        return ResponseEntity.ok(authorizationService.getAuthorizationByAccessToken(token));
-    }
-
-    @GetMapping("/refresh/{token}")
-    public ResponseEntity<OAuth2AuthorizationEntity> getAuthorizationByRefreshToken(@PathVariable String token) {
-        return ResponseEntity.ok(authorizationService.getAuthorizationByRefreshToken(token));
-    }
-
-    @DeleteMapping("/access/{token}")
-    public ResponseEntity<Void> revokeAuthorizationByAccessToken(@PathVariable String token) {
-        authorizationService.deleteAuthorizationByAccessToken(token);
-        return ResponseEntity.noContent().build();
-    }
-
-    @DeleteMapping("/refresh/{token}")
-    public ResponseEntity<Void> revokeAuthorizationByRefreshToken(@PathVariable String token) {
-        authorizationService.deleteAuthorizationByRefreshToken(token);
+    @DeleteMapping("/user/{username}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> revokeAllTokensForUser(@PathVariable String username) {
+        authorizationService.revokeAllTokensForUser(username);
         return ResponseEntity.noContent().build();
     }
 }

@@ -13,7 +13,7 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-public class OAuth2ClientService {
+public class OAuth2ClientServiceImpl {
 
     private final OAuth2ClientRepository clientRepository;
 

@@ -2,9 +2,10 @@ package ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.control
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.entities.OAuth2ClientEntity;
-import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.services.OAuth2ClientService;
+import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.services.OAuth2ClientServiceImpl;
 
 import java.util.List;
 
@@ -13,29 +14,28 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OAuth2ClientController {
 
-    private final OAuth2ClientService clientService;
+    private final OAuth2ClientServiceImpl clientService;
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<OAuth2ClientEntity>> getAllClients() {
         return ResponseEntity.ok(clientService.getAllClients());
     }
 
     @GetMapping("/{clientId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<OAuth2ClientEntity> getClientByClientId(@PathVariable String clientId) {
         return ResponseEntity.ok(clientService.getClientByClientId(clientId));
     }
 
-    @GetMapping("/exists/{clientId}")
-    public ResponseEntity<Boolean> checkIfClientExists(@PathVariable String clientId) {
-        return ResponseEntity.ok(clientService.existsByClientId(clientId));
-    }
-
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<OAuth2ClientEntity> createClient(@RequestBody OAuth2ClientEntity client) {
         return ResponseEntity.ok(clientService.saveClient(client));
     }
 
     @DeleteMapping("/{clientId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteClient(@PathVariable String clientId) {
         clientService.deleteClientByClientId(clientId);
         return ResponseEntity.noContent().build();
