@@ -6,79 +6,108 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
+import org.springframework.security.oauth2.server.authorization.settings.OAuth2TokenFormat;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.stereotype.Service;
 import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.entities.OAuth2ClientEntity;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.logging.Logger;
 
 @Service
 @RequiredArgsConstructor
 public class OAuth2ClientMapper {
 
-    private final ObjectMapper objectMapper;
+    private static final Logger logger = Logger.getLogger(OAuth2ClientMapper.class.getName());
 
-    public OAuth2ClientEntity from(RegisteredClient registeredClient) {
+    public OAuth2ClientEntity from(RegisteredClient client) {
         return OAuth2ClientEntity.builder()
-                .id(registeredClient.getId())
-                .clientId(registeredClient.getClientId())
-                .clientIdIssuedAt(
-                        registeredClient.getClientIdIssuedAt() != null
-                                ? registeredClient.getClientIdIssuedAt()
-                                : Instant.now()
-                )
-                .clientSecret(registeredClient.getClientSecret())
-                .clientSecretExpiresAt(registeredClient.getClientSecretExpiresAt())
-                .clientName(registeredClient.getClientName())
+                .id(client.getId())
+                .clientId(client.getClientId())
+                .clientIdIssuedAt(Optional.ofNullable(client.getClientIdIssuedAt()).orElse(Instant.now()))
+                .clientSecret(client.getClientSecret())
+                .clientSecretExpiresAt(client.getClientSecretExpiresAt())
+                .clientName(client.getClientName())
                 .clientAuthenticationMethods(
-                        registeredClient.getClientAuthenticationMethods().stream()
+                        client.getClientAuthenticationMethods().stream()
                                 .map(ClientAuthenticationMethod::getValue)
-                                .collect(Collectors.toList())
+                                .toList()
                 )
                 .authorizationGrantTypes(
-                        registeredClient.getAuthorizationGrantTypes().stream()
+                        client.getAuthorizationGrantTypes().stream()
                                 .map(AuthorizationGrantType::getValue)
-                                .collect(Collectors.toList())
+                                .toList()
                 )
-                .redirectUris(new ArrayList<>(registeredClient.getRedirectUris()))
-                .scopes(new ArrayList<>(registeredClient.getScopes()))
-                .clientSettings(registeredClient.getClientSettings().getSettings())
-                .tokenSettings(registeredClient.getTokenSettings().getSettings())
+                .redirectUris(new ArrayList<>(client.getRedirectUris()))
+                .scopes(new ArrayList<>(client.getScopes()))
+                .clientSettings(client.getClientSettings().getSettings())
+                .tokenSettings(client.getTokenSettings().getSettings())
                 .build();
     }
 
-    public RegisteredClient toRegisteredClient(OAuth2ClientEntity oAuth2ClientEntity) {
-        return RegisteredClient.withId(oAuth2ClientEntity.getId())
-                .clientId(oAuth2ClientEntity.getClientId())
-                .clientIdIssuedAt(oAuth2ClientEntity.getClientIdIssuedAt())
-                .clientSecret(oAuth2ClientEntity.getClientSecret())
-                .clientSecretExpiresAt(oAuth2ClientEntity.getClientSecretExpiresAt())
-                .clientName(oAuth2ClientEntity.getClientName())
+    public RegisteredClient toRegisteredClient(OAuth2ClientEntity entity) {
+        logger.info("MAPPING CLIENT: " + entity.getClientId());
+        logger.info(" → Auth methods: " + entity.getClientAuthenticationMethods());
+
+        Map<String, Object> tokenSettingsMap = entity.getTokenSettings();
+        Map<String, Object> clientSettingsMap = entity.getClientSettings();
+
+        TokenSettings.Builder tokenSettingsBuilder = TokenSettings.builder();
+
+        // 🧠 Восстанавливаем accessTokenFormat
+        Object accessTokenFormatRaw = tokenSettingsMap.get("settings.token.access-token-format");
+        if (accessTokenFormatRaw instanceof Map<?, ?> formatMap) {
+            String value = (String) formatMap.get("value");
+            if ("self-contained".equalsIgnoreCase(value)) {
+                tokenSettingsBuilder.accessTokenFormat(OAuth2TokenFormat.SELF_CONTAINED);
+            } else if ("reference".equalsIgnoreCase(value)) {
+                tokenSettingsBuilder.accessTokenFormat(OAuth2TokenFormat.REFERENCE);
+            }
+        }
+
+        // 🧠 Остальные параметры можно просто "подсунуть", если типы верные
+        tokenSettingsMap.forEach((key, val) -> {
+            if ("settings.token.access-token-time-to-live".equals(key) && val instanceof Number number) {
+                tokenSettingsBuilder.accessTokenTimeToLive(Duration.ofSeconds(number.longValue()));
+            } else if ("settings.token.refresh-token-time-to-live".equals(key) && val instanceof Number number) {
+                tokenSettingsBuilder.refreshTokenTimeToLive(Duration.ofSeconds(number.longValue()));
+            } else if ("settings.token.authorization-code-time-to-live".equals(key) && val instanceof Number number) {
+                tokenSettingsBuilder.authorizationCodeTimeToLive(Duration.ofSeconds(number.longValue()));
+            } else if ("settings.token.device-code-time-to-live".equals(key) && val instanceof Number number) {
+                tokenSettingsBuilder.deviceCodeTimeToLive(Duration.ofSeconds(number.longValue()));
+            } else if (!"settings.token.access-token-format".equals(key)) {
+                tokenSettingsBuilder.setting(key, val);
+            }
+        });
+
+        ClientSettings clientSettings = ClientSettings.withSettings(clientSettingsMap).build();
+        TokenSettings tokenSettings = tokenSettingsBuilder.build();
+
+        return RegisteredClient.withId(entity.getId())
+                .clientId(entity.getClientId())
+                .clientSecret(entity.getClientSecret())
+                .clientIdIssuedAt(entity.getClientIdIssuedAt())
+                .clientSecretExpiresAt(entity.getClientSecretExpiresAt())
+                .clientName(entity.getClientName())
                 .clientAuthenticationMethods(methods ->
-                        Optional.ofNullable(oAuth2ClientEntity.getClientAuthenticationMethods()).orElse(Collections.emptyList())
-                                .forEach(method -> methods.add(new ClientAuthenticationMethod(method)))
+                        Optional.ofNullable(entity.getClientAuthenticationMethods())
+                                .orElse(List.of())
+                                .forEach(m -> methods.add(new ClientAuthenticationMethod(m)))
                 )
                 .authorizationGrantTypes(grantTypes ->
-                        Optional.ofNullable(oAuth2ClientEntity.getAuthorizationGrantTypes()).orElse(Collections.emptyList())
-                                .forEach(grantType -> grantTypes.add(new AuthorizationGrantType(grantType)))
+                        Optional.ofNullable(entity.getAuthorizationGrantTypes())
+                                .orElse(List.of())
+                                .forEach(g -> grantTypes.add(new AuthorizationGrantType(g)))
                 )
-                .redirectUris(uris ->
-                        uris.addAll(new HashSet<>(Optional.ofNullable(oAuth2ClientEntity.getRedirectUris()).orElse(Collections.emptyList()))) // List -> Set
-                )
-                .scopes(scopes ->
-                        scopes.addAll(new HashSet<>(Optional.ofNullable(oAuth2ClientEntity.getScopes()).orElse(Collections.emptyList()))) // List -> Set
-                )
-                .clientSettings(ClientSettings.withSettings(
-                        Optional.ofNullable(oAuth2ClientEntity.getClientSettings()).orElse(Collections.emptyMap())
-                ).build())
-                .tokenSettings(TokenSettings.withSettings(
-                        Optional.ofNullable(oAuth2ClientEntity.getTokenSettings()).orElse(Collections.emptyMap())
-                ).build())
+                .redirectUris(uris -> uris.addAll(Optional.ofNullable(entity.getRedirectUris()).orElse(List.of())))
+                .scopes(scopes -> scopes.addAll(Optional.ofNullable(entity.getScopes()).orElse(List.of())))
+                .clientSettings(clientSettings)
+                .tokenSettings(tokenSettings)
                 .build();
     }
 }
