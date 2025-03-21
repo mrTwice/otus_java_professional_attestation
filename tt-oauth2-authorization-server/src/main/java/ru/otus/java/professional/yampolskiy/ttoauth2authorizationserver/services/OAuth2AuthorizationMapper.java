@@ -50,7 +50,7 @@ public class OAuth2AuthorizationMapper {
             entity.setAccessTokenExpiresAt(accessToken.getExpiresAt());
             entity.setAccessTokenType(accessToken.getTokenType().getValue());
             entity.setAccessTokenScopes(String.join(",", accessToken.getScopes()));
-            logger.info("Saving token: " + accessToken.getTokenValue() + " (" + accessToken.getTokenValue().getClass().getSimpleName() + ")");
+            logger.info("Info token: " + accessToken.getTokenValue() + " (" + accessToken.getTokenValue().getClass().getSimpleName() + ")");
 
         }
 

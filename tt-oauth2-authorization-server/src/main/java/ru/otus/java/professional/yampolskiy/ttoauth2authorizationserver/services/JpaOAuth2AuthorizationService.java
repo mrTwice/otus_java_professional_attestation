@@ -1,6 +1,8 @@
 package ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.services;
 
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
@@ -12,6 +14,7 @@ import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.reposito
 @RequiredArgsConstructor
 public class JpaOAuth2AuthorizationService implements OAuth2AuthorizationService{
 
+    private static final Logger logger = LoggerFactory.getLogger(JpaOAuth2AuthorizationService.class);
     private final OAuth2AuthorizationRepository authorizationRepository;
     private final OAuth2AuthorizationMapper authorizationMapper;
 
@@ -19,11 +22,18 @@ public class JpaOAuth2AuthorizationService implements OAuth2AuthorizationService
     @Override
     public void save(OAuth2Authorization authorization) {
         authorizationRepository.save(authorizationMapper.from(authorization));
+
     }
 
     @Override
     public void remove(OAuth2Authorization authorization) {
+        logger.info("Удаляем токен: {}", authorization.getId());
         authorizationRepository.deleteById(authorization.getId());
+        if (!authorizationRepository.existsById(authorization.getId())) {
+            logger.warn("Токен уже удалён или не найден: {}", authorization.getId());
+        } else {
+            logger.warn("Токен не удалён: {}", authorization.getId());
+        }
     }
 
     @Override
@@ -37,6 +47,7 @@ public class JpaOAuth2AuthorizationService implements OAuth2AuthorizationService
     @Override
     @Transactional(readOnly = true)
     public OAuth2Authorization findByToken(String token, OAuth2TokenType tokenType) {
+        logger.info("🔥 [findByToken] token = {}, tokenType = {}", token, tokenType);
         if (tokenType == null) {
             // Если тип токена не указан, ищем по любому типу токена
             return authorizationRepository.findByTokenValue(token)
