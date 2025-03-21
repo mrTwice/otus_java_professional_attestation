@@ -2,6 +2,8 @@ package ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.entitie
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
 
@@ -34,10 +36,12 @@ public class OAuth2AuthorizationEntity {
 
     @Lob
     @Column(columnDefinition = "TEXT")
+    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
     private String authorizedScopes;
 
     @Lob
     @Column(columnDefinition = "TEXT")
+    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
     private String attributes;
 
     private String state;
@@ -45,6 +49,7 @@ public class OAuth2AuthorizationEntity {
     // Authorization Code
     @Lob
     @Column(columnDefinition = "TEXT")
+    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
     private String authorizationCodeValue;
 
     private Instant authorizationCodeIssuedAt;
@@ -52,11 +57,13 @@ public class OAuth2AuthorizationEntity {
 
     @Lob
     @Column(columnDefinition = "TEXT")
+    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
     private String authorizationCodeMetadata;
 
     // Access Token
     @Lob
     @Column(columnDefinition = "TEXT", unique = true)
+    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
     private String accessTokenValue;
 
     private Instant accessTokenIssuedAt;
@@ -64,17 +71,20 @@ public class OAuth2AuthorizationEntity {
 
     @Lob
     @Column(columnDefinition = "TEXT")
+    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
     private String accessTokenMetadata;
 
     private String accessTokenType;
 
     @Lob
     @Column(columnDefinition = "TEXT")
+    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
     private String accessTokenScopes;
 
     // Refresh Token
     @Lob
     @Column(columnDefinition = "TEXT", unique = true)
+    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
     private String refreshTokenValue;
 
     private Instant refreshTokenIssuedAt;
@@ -82,6 +92,7 @@ public class OAuth2AuthorizationEntity {
 
     @Lob
     @Column(columnDefinition = "TEXT")
+    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
     private String refreshTokenMetadata;
 
 }

@@ -12,11 +12,13 @@ import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.entities
 import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.repositories.JpaRegisteredClientRepository;
 
 import java.util.Set;
+import java.util.logging.Logger;
 
 @Service
 @RequiredArgsConstructor
 public class OAuth2AuthorizationMapper {
 
+    private static final Logger logger = Logger.getLogger(OAuth2AuthorizationMapper.class.getName());
     private final JpaRegisteredClientRepository registeredClientRepository;
 
 
@@ -34,7 +36,7 @@ public class OAuth2AuthorizationMapper {
         OAuth2Authorization.Token<OAuth2AuthorizationCode> authorizationCodeToken = authorization.getToken(OAuth2AuthorizationCode.class);
         if (authorizationCodeToken != null) {
             OAuth2AuthorizationCode authorizationCode = authorizationCodeToken.getToken();
-            entity.setAuthorizationCodeValue(authorizationCode.getTokenValue());
+            entity.setAuthorizationCodeValue(String.valueOf(authorizationCode.getTokenValue()));
             entity.setAuthorizationCodeIssuedAt(authorizationCode.getIssuedAt());
             entity.setAuthorizationCodeExpiresAt(authorizationCode.getExpiresAt());
         }
@@ -43,18 +45,20 @@ public class OAuth2AuthorizationMapper {
         OAuth2Authorization.Token<OAuth2AccessToken> accessTokenToken = authorization.getToken(OAuth2AccessToken.class);
         if (accessTokenToken != null) {
             OAuth2AccessToken accessToken = accessTokenToken.getToken();
-            entity.setAccessTokenValue(accessToken.getTokenValue());
+            entity.setAccessTokenValue(String.valueOf(accessToken.getTokenValue()));
             entity.setAccessTokenIssuedAt(accessToken.getIssuedAt());
             entity.setAccessTokenExpiresAt(accessToken.getExpiresAt());
             entity.setAccessTokenType(accessToken.getTokenType().getValue());
             entity.setAccessTokenScopes(String.join(",", accessToken.getScopes()));
+            logger.info("Saving token: " + accessToken.getTokenValue() + " (" + accessToken.getTokenValue().getClass().getSimpleName() + ")");
+
         }
 
         // Refresh Token
         OAuth2Authorization.Token<OAuth2RefreshToken> refreshTokenToken = authorization.getToken(OAuth2RefreshToken.class);
         if (refreshTokenToken != null) {
             OAuth2RefreshToken refreshToken = refreshTokenToken.getToken();
-            entity.setRefreshTokenValue(refreshToken.getTokenValue());
+            entity.setRefreshTokenValue(String.valueOf(refreshToken.getTokenValue()));
             entity.setRefreshTokenIssuedAt(refreshToken.getIssuedAt());
             entity.setRefreshTokenExpiresAt(refreshToken.getExpiresAt());
         }
@@ -65,7 +69,7 @@ public class OAuth2AuthorizationMapper {
 
     public OAuth2Authorization toAuthorization(OAuth2AuthorizationEntity oAuth2AuthorizationEntity) {
         // Получаем RegisteredClient по registeredClientId
-        RegisteredClient registeredClient = registeredClientRepository.findByClientId(oAuth2AuthorizationEntity.getRegisteredClientId());
+        RegisteredClient registeredClient = registeredClientRepository.findById(oAuth2AuthorizationEntity.getRegisteredClientId());
         if (registeredClient == null) {
             throw new IllegalArgumentException("RegisteredClient not found for clientId: " + oAuth2AuthorizationEntity.getRegisteredClientId());
         }
@@ -75,8 +79,10 @@ public class OAuth2AuthorizationMapper {
                 .id(oAuth2AuthorizationEntity.getId())
                 .principalName(oAuth2AuthorizationEntity.getPrincipalName())
                 .authorizationGrantType(new AuthorizationGrantType(oAuth2AuthorizationEntity.getAuthorizationGrantType()))
-                .authorizedScopes(Set.of(oAuth2AuthorizationEntity.getAuthorizedScopes().split(",")))
-                .attribute("state", oAuth2AuthorizationEntity.getState());
+                .authorizedScopes(Set.of(oAuth2AuthorizationEntity.getAuthorizedScopes().split(",")));
+        if (oAuth2AuthorizationEntity.getState() != null) {
+            builder.attribute("state", oAuth2AuthorizationEntity.getState());
+        }
 
         // Authorization Code
         if (oAuth2AuthorizationEntity.getAuthorizationCodeValue() != null) {

@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.entities.OAuth2AuthorizationEntity;
 
-import java.nio.channels.FileChannel;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,6 +37,11 @@ public interface OAuth2AuthorizationRepository extends JpaRepository<OAuth2Autho
     @Transactional(readOnly = true)
     List<OAuth2AuthorizationEntity> findByPrincipalName(String principal);
 
-    @Query("SELECT a FROM OAuth2AuthorizationEntity a WHERE a.accessTokenValue = :token OR a.refreshTokenValue = :token OR a.authorizationCodeValue = :token")
+    @Query("""
+                SELECT a FROM OAuth2AuthorizationEntity a 
+                WHERE cast(a.accessTokenValue as string) = :token 
+                   OR cast(a.refreshTokenValue as string) = :token 
+                   OR cast(a.authorizationCodeValue as string) = :token
+            """)
     Optional<OAuth2AuthorizationEntity> findByTokenValue(@Param("token") String token);
 }
