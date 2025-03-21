@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.dtos.OAuth2TokenIntrospectionResponse;
 import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.entities.OAuth2AuthorizationEntity;
 import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.services.OAuth2AuthorizationServiceImpl;
 

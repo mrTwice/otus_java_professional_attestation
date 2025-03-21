@@ -1,20 +1,12 @@
 package ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.entities;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
-import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
-import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
-import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
+import org.hibernate.annotations.ColumnTransformer;
 
-import java.io.IOException;
 import java.time.Instant;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.List;
+import java.util.Map;
 
 @Entity
 @Table(name = "oauth2_client",
@@ -43,27 +35,33 @@ public class OAuth2ClientEntity {
     @Column(nullable = false)
     private String clientName;
 
-    @Lob
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String clientAuthenticationMethods;
+    @Convert(converter = JsonListConverter.class)
+    @Column(nullable = false, columnDefinition = "jsonb")
+    @ColumnTransformer(write = "?::jsonb")
+    private List<String> clientAuthenticationMethods;
 
-    @Lob
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String authorizationGrantTypes;
+    @Convert(converter = JsonListConverter.class)
+    @Column(nullable = false, columnDefinition = "jsonb")
+    @ColumnTransformer(write = "?::jsonb")
+    private List<String> authorizationGrantTypes;
 
-    @Lob
-    @Column(columnDefinition = "TEXT")
-    private String redirectUris;
+    @Convert(converter = JsonListConverter.class)
+    @Column(columnDefinition = "jsonb")
+    @ColumnTransformer(write = "?::jsonb")
+    private List<String> redirectUris;
 
-    @Lob
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String scopes;
+    @Convert(converter = JsonListConverter.class)
+    @Column(nullable = false, columnDefinition = "jsonb")
+    @ColumnTransformer(write = "?::jsonb")
+    private List<String> scopes;
 
-    @Lob
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String clientSettings;
+    @Convert(converter = JsonMapConverter.class)
+    @Column(nullable = false, columnDefinition = "jsonb")
+    @ColumnTransformer(write = "?::jsonb")
+    private Map<String, Object> clientSettings;
 
-    @Lob
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String tokenSettings;
+    @Convert(converter = JsonMapConverter.class)
+    @Column(nullable = false, columnDefinition = "jsonb")
+    @ColumnTransformer(write = "?::jsonb")
+    private Map<String, Object> tokenSettings;
 }

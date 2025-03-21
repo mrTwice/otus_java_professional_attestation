@@ -6,7 +6,7 @@ services:
       args:
         - NO_CACHE=true
     image: postgres_custom_ru:latest
-    container_name: oauth2-authorization-server-postgres
+    container_name: tt-oauth2-authorization-server-postgres
     ports:
       - "5434:5432"
     environment:

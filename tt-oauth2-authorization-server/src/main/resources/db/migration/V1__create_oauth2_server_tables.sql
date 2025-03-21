@@ -6,12 +6,12 @@ CREATE TABLE oauth2_client
     client_secret                 TEXT,
     client_secret_expires_at      TIMESTAMP,
     client_name                   VARCHAR(255) NOT NULL,
-    client_authentication_methods VARCHAR(500) NOT NULL,
-    authorization_grant_types     VARCHAR(500) NOT NULL,
-    redirect_uris                 TEXT,
-    scopes                        VARCHAR(500) NOT NULL,
-    client_settings               TEXT NOT NULL,
-    token_settings                TEXT NOT NULL
+    client_authentication_methods jsonb        NOT NULL,
+    authorization_grant_types     jsonb        NOT NULL,
+    redirect_uris                 jsonb,
+    scopes                        jsonb        NOT NULL,
+    client_settings               jsonb        NOT NULL,
+    token_settings                jsonb        NOT NULL
 );
 
 CREATE TABLE oauth2_authorization

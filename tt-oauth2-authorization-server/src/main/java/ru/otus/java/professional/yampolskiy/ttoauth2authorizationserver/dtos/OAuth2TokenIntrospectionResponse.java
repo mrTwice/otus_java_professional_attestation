@@ -9,7 +9,7 @@ import java.util.Set;
 @Getter
 @Builder
 public class OAuth2TokenIntrospectionResponse {
-    private boolean active; // true - если токен действителен, false - если нет
+    private boolean active;
     private String clientId;
     private Set<String> scopes;
     private Instant expiresAt;
