@@ -61,7 +61,7 @@ public class JpaOAuth2AuthorizationService implements OAuth2AuthorizationService
             case "refresh_token" -> authorizationRepository.findByRefreshTokenValue(token)
                     .map(authorizationMapper::toAuthorization)
                     .orElse(null);
-            case "authorization_code" -> authorizationRepository.findByAuthorizationCodeValue(token)
+            case "authorization_code" , "code" -> authorizationRepository.findByAuthorizationCodeValue(token)
                     .map(authorizationMapper::toAuthorization)
                     .orElse(null);
             case "state" -> authorizationRepository.findByState(token)
