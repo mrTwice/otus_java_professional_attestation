@@ -21,6 +21,8 @@ import org.springframework.util.StringUtils;
 import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.repositories.JpaRegisteredClientRepository;
 import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.services.JpaOAuth2AuthorizationService;
 
+import java.util.List;
+
 @Configuration
 public class AuthorizationServerSecurityConfig {
 
@@ -44,7 +46,15 @@ public class AuthorizationServerSecurityConfig {
                             .authorizationService(authorizationService)
                             .registeredClientRepository(registeredClientRepository)
                             .tokenGenerator(jwtGenerator)
-                            .oidc(Customizer.withDefaults())
+                            .oidc(oidc -> oidc
+                                    .providerConfigurationEndpoint(config ->
+                                            config.providerConfigurationCustomizer(context -> {
+                                                context.claim("scopes_supported", List.of(
+                                                        "openid", "profile", "email", "read", "write"
+                                                ));
+                                            })
+                                    )
+                            )
                             .tokenRevocationEndpoint(tokenRevocationEndpointConfigurer ->
                                     tokenRevocationEndpointConfigurer
                                             .revocationResponseHandler((request, response, authentication) -> {
