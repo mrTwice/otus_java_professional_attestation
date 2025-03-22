@@ -1,12 +1,12 @@
 services:
-  user-service-postgres:
+  tt-user-service-postgres:
     build:
       context: .
       dockerfile: Dockerfile
       args:
         - NO_CACHE=true
     image: postgres_custom_ru:latest
-    container_name: user-service-postgres
+    container_name: tt-user-service-postgres
     ports:
       - "5433:5432"
     environment:

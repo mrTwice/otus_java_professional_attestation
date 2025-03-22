@@ -1,6 +1,6 @@
 include:
   #- tt-task-service/docker-compose.tt-task-service.yaml
-  #- tt-user-service/docker-compose.tt-user-service.yaml
+  - tt-user-service/docker-compose.tt-user-service.yaml
   - tt-oauth2-authorization-server/docker-compose.tt-oauth2-authorization-server.yaml
 
 networks:

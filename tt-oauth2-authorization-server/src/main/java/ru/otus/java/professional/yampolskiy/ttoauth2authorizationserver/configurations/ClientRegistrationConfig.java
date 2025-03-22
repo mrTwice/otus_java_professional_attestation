@@ -39,4 +39,35 @@ public class ClientRegistrationConfig {
             }
         };
     }
+
+    @Bean
+    public CommandLineRunner registerOidcClient(
+            JpaRegisteredClientRepository registeredClientRepository,
+            PasswordEncoder passwordEncoder,
+            TokenSettings tokenSettings) {
+        return args -> {
+            if (registeredClientRepository.findByClientId("oidc-test-client") == null) {
+                RegisteredClient oidcClient = RegisteredClient.withId(UUID.randomUUID().toString())
+                        .clientId("oidc-test-client")
+                        .clientSecret(passwordEncoder.encode("oidc-secret"))
+                        .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+                        .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                        .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
+                        .redirectUri("http://127.0.0.1:8080/login/oauth2/code/oidc-client")
+                        .scope("openid")
+                        .scope("profile")
+                        .scope("email")
+                        .scope("read")
+                        .scope("write")
+                        .clientSettings(ClientSettings.builder()
+                                .requireAuthorizationConsent(true)
+                                .build())
+                        .tokenSettings(tokenSettings)
+                        .build();
+
+                registeredClientRepository.save(oidcClient);
+            }
+        };
+    }
+
 }

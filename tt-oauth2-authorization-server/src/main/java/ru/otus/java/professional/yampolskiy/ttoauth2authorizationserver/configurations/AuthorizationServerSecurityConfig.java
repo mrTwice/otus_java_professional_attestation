@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
@@ -43,6 +44,7 @@ public class AuthorizationServerSecurityConfig {
                             .authorizationService(authorizationService)
                             .registeredClientRepository(registeredClientRepository)
                             .tokenGenerator(jwtGenerator)
+                            .oidc(Customizer.withDefaults())
                             .tokenRevocationEndpoint(tokenRevocationEndpointConfigurer ->
                                     tokenRevocationEndpointConfigurer
                                             .revocationResponseHandler((request, response, authentication) -> {

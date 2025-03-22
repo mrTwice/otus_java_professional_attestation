@@ -13,6 +13,7 @@ public class AuthorizationServerPropertiesConfig {
     @Bean
     public AuthorizationServerSettings authorizationServerSettings() {
         return AuthorizationServerSettings.builder()
+                .issuer("http://localhost:8080")
                 .tokenEndpoint("/oauth2/token")
                 .authorizationEndpoint("/oauth2/authorize")
                 .tokenIntrospectionEndpoint("/oauth2/introspect")
