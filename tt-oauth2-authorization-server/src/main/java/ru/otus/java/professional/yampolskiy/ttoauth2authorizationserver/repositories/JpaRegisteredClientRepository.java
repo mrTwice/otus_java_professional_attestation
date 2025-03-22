@@ -42,18 +42,16 @@ public class JpaRegisteredClientRepository implements RegisteredClientRepository
     @Transactional(readOnly = true)
     public RegisteredClient findByClientId(String clientId) {
         try {
-            RegisteredClient rc = clientRepository.findByClientId(clientId)
+            return clientRepository.findByClientId(clientId)
                     .map(clientMapper::toRegisteredClient)
                     .orElse(null);
-            if (rc != null) {
-                LOGGER.info("RC clientSecret: " + rc.getClientSecret());
-                LOGGER.info("Password matches: " + passwordEncoder.matches("test-secret", rc.getClientSecret()));
-            }
-
-            return rc;
         } catch (Exception e) {
             LOGGER.error("Error while finding client by clientId: {}", clientId, e);
             throw e;
         }
+    }
+
+    public void deleteById(String id) {
+        clientRepository.deleteById(id);
     }
 }

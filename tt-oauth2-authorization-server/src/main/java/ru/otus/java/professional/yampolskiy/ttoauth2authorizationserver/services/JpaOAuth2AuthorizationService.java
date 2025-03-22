@@ -49,13 +49,11 @@ public class JpaOAuth2AuthorizationService implements OAuth2AuthorizationService
     public OAuth2Authorization findByToken(String token, OAuth2TokenType tokenType) {
         logger.info("🔥 [findByToken] token = {}, tokenType = {}", token, tokenType);
         if (tokenType == null) {
-            // Если тип токена не указан, ищем по любому типу токена
             return authorizationRepository.findByTokenValue(token)
                     .map(authorizationMapper::toAuthorization)
                     .orElse(null);
         }
 
-        // Ищем авторизацию по конкретному типу токена
         return switch (tokenType.getValue()) {
             case "access_token" -> authorizationRepository.findByAccessTokenValue(token)
                     .map(authorizationMapper::toAuthorization)
@@ -64,6 +62,9 @@ public class JpaOAuth2AuthorizationService implements OAuth2AuthorizationService
                     .map(authorizationMapper::toAuthorization)
                     .orElse(null);
             case "authorization_code" -> authorizationRepository.findByAuthorizationCodeValue(token)
+                    .map(authorizationMapper::toAuthorization)
+                    .orElse(null);
+            case "state" -> authorizationRepository.findByState(token)
                     .map(authorizationMapper::toAuthorization)
                     .orElse(null);
             default -> throw new IllegalArgumentException("Unsupported token type: " + tokenType.getValue());

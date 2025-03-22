@@ -44,4 +44,6 @@ public interface OAuth2AuthorizationRepository extends JpaRepository<OAuth2Autho
                    OR cast(a.authorizationCodeValue as string) = :token
             """)
     Optional<OAuth2AuthorizationEntity> findByTokenValue(@Param("token") String token);
+
+    Optional<OAuth2AuthorizationEntity> findByState(String state);
 }
