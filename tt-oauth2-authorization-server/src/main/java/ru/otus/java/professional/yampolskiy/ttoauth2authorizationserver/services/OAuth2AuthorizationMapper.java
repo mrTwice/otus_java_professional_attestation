@@ -1,10 +1,10 @@
 package ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.services;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -12,6 +12,7 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationCode;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
@@ -28,6 +29,9 @@ import java.util.logging.Logger;
 @RequiredArgsConstructor
 public class OAuth2AuthorizationMapper {
 
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
+            .registerModule(new JavaTimeModule()) // ✅ регистрируем поддержку Instant, LocalDateTime и т.п.
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS); // опционально: ISO-8601 вместо epoch
     private static final Logger logger = Logger.getLogger(OAuth2AuthorizationMapper.class.getName());
     private final JpaRegisteredClientRepository registeredClientRepository;
 
@@ -65,8 +69,8 @@ public class OAuth2AuthorizationMapper {
         attributes.put(ATTR_PRINCIPAL_NAME, authorization.getPrincipalName());
 
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            entity.setAttributes(objectMapper.writeValueAsString(attributes));
+
+            entity.setAttributes(OBJECT_MAPPER.writeValueAsString(attributes));
         } catch (JsonProcessingException e) {
             throw new IllegalStateException("Ошибка сериализации attributes", e);
         }
@@ -99,6 +103,21 @@ public class OAuth2AuthorizationMapper {
             entity.setRefreshTokenExpiresAt(token.getExpiresAt());
         }
 
+        // 🆔 ID Token
+
+        var idToken = authorization.getToken(OidcIdToken.class);
+        if (idToken != null) {
+            var token = idToken.getToken();
+            entity.setIdTokenValue(token.getTokenValue());
+            entity.setIdTokenIssuedAt(token.getIssuedAt());
+            entity.setIdTokenExpiresAt(token.getExpiresAt());
+            try {
+                entity.setIdTokenMetadata(OBJECT_MAPPER.writeValueAsString(token.getClaims()));
+            } catch (JsonProcessingException e) {
+                throw new IllegalStateException("Ошибка сериализации ID Token claims", e);
+            }
+        }
+
         return entity;
     }
 
@@ -119,8 +138,7 @@ public class OAuth2AuthorizationMapper {
         }
 
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            Map<String, Object> attributes = objectMapper.readValue(entity.getAttributes(), new TypeReference<>() {});
+            Map<String, Object> attributes = OBJECT_MAPPER.readValue(entity.getAttributes(), new TypeReference<>() {});
 
             // 🔁 Восстановление OAuth2AuthorizationRequest
             if (attributes.containsKey(ATTR_AUTHZ_REQ_SERIALIZED)) {
@@ -168,6 +186,23 @@ public class OAuth2AuthorizationMapper {
                     entity.getRefreshTokenValue(),
                     entity.getRefreshTokenIssuedAt(),
                     entity.getRefreshTokenExpiresAt()
+            ));
+        }
+
+        // 🆔 ID Token
+        if (entity.getIdTokenValue() != null) {
+            Map<String, Object> claims = new HashMap<>();
+            try {
+                claims = OBJECT_MAPPER.readValue(entity.getIdTokenMetadata(), new TypeReference<>() {});
+            } catch (IOException e) {
+                throw new IllegalStateException("Ошибка десериализации ID Token claims", e);
+            }
+
+            builder.token(new OidcIdToken(
+                    entity.getIdTokenValue(),
+                    entity.getIdTokenIssuedAt(),
+                    entity.getIdTokenExpiresAt(),
+                    claims
             ));
         }
 

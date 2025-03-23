@@ -12,7 +12,7 @@ spring:
       minimumIdle: 2
       maximumPoolSize: 4
   jpa:
-    show-sql: true
+    #show-sql: true
     open-in-view: false
     hibernate:
       ddl-auto: validate
@@ -23,3 +23,4 @@ logging:
   level:
     org.springframework.security: DEBUG
     org.springframework.security.oauth2: DEBUG
+    org.springframework.security.oauth2.server.authorization.web.OAuth2AuthorizationEndpointFilter: DEBUG

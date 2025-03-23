@@ -2,6 +2,8 @@ package ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.configu
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
+import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.oauth2.server.authorization.settings.OAuth2TokenFormat;
@@ -19,7 +21,7 @@ public class AuthorizationServerPropertiesConfig {
                 .authorizationEndpoint("/oauth2/authorize")
                 .tokenIntrospectionEndpoint("/oauth2/introspect")
                 .tokenRevocationEndpoint("/oauth2/revoke")
-                .oidcUserInfoEndpoint("/userinfo")
+                .oidcUserInfoEndpoint("/oauth2/userinfo")
                 .oidcLogoutEndpoint("/logout")
                 .jwkSetEndpoint("/oauth2/jwks")
                 .build();

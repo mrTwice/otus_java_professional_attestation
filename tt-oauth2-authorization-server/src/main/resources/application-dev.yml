@@ -12,7 +12,7 @@ spring:
       minimumIdle: 2
       maximumPoolSize: 4
   jpa:
-    show-sql: true
+    #show-sql: true
     open-in-view: false
     hibernate:
       ddl-auto: validate

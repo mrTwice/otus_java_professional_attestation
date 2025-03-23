@@ -95,4 +95,18 @@ public class OAuth2AuthorizationEntity {
     @JdbcTypeCode(SqlTypes.LONGVARCHAR)
     private String refreshTokenMetadata;
 
+    // ID Token (OIDC)
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
+    private String idTokenValue;
+
+    private Instant idTokenIssuedAt;
+    private Instant idTokenExpiresAt;
+
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
+    private String idTokenMetadata;
+
 }
