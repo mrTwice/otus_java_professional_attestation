@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.oauth2.server.authorization.settings.OAuth2TokenFormat;
@@ -80,6 +81,12 @@ public class OAuth2ClientMapper {
                 tokenSettingsBuilder.authorizationCodeTimeToLive(Duration.ofSeconds(number.longValue()));
             } else if ("settings.token.device-code-time-to-live".equals(key) && val instanceof Number number) {
                 tokenSettingsBuilder.deviceCodeTimeToLive(Duration.ofSeconds(number.longValue()));
+            } else if ("settings.token.id-token-signature-algorithm".equals(key) && val instanceof String alg) {
+                try {
+                    tokenSettingsBuilder.idTokenSignatureAlgorithm(SignatureAlgorithm.from(alg));
+                } catch (Exception e) {
+                    logger.warning("⚠️ Неизвестный алгоритм подписи ID Token: " + alg);
+                }
             } else if (!"settings.token.access-token-format".equals(key)) {
                 tokenSettingsBuilder.setting(key, val);
             }

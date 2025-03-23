@@ -6,6 +6,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
@@ -18,10 +20,8 @@ import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.entities
 import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.repositories.JpaRegisteredClientRepository;
 
 import java.io.IOException;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.security.Principal;
+import java.util.*;
 import java.util.logging.Logger;
 
 @Service
@@ -32,6 +32,7 @@ public class OAuth2AuthorizationMapper {
     private final JpaRegisteredClientRepository registeredClientRepository;
 
     private static final String ATTR_AUTHZ_REQ_SERIALIZED = "authorization_request_serialized";
+    private static final String ATTR_PRINCIPAL_NAME = "principal_name";
 
     public OAuth2AuthorizationEntity from(OAuth2Authorization authorization) {
         OAuth2AuthorizationEntity entity = OAuth2AuthorizationEntity.builder()
@@ -43,13 +44,25 @@ public class OAuth2AuthorizationMapper {
                 .state(authorization.getAttribute("state"))
                 .build();
 
-        // 🧠 Сохраняем сериализованный authorizationRequest
         Map<String, Object> attributes = new HashMap<>(authorization.getAttributes());
+
+        // ❌ Удаляем объекты, которые не сериализуются
+        attributes.entrySet().removeIf(entry ->
+                entry.getValue() instanceof Authentication ||
+                        entry.getValue() instanceof Principal
+        );
+        attributes.remove(Principal.class.getName());
+        attributes.remove(Authentication.class.getName());
+
+        // 🧠 Сохраняем OAuth2AuthorizationRequest
         OAuth2AuthorizationRequest authzRequest = authorization.getAttribute(OAuth2AuthorizationRequest.class.getName());
         if (authzRequest != null) {
             String serialized = OAuth2AuthorizationRequestUtils.serialize(authzRequest);
-            attributes.put("authorization_request_serialized", serialized);
+            attributes.put(ATTR_AUTHZ_REQ_SERIALIZED, serialized);
         }
+
+        // 💾 Добавляем имя пользователя
+        attributes.put(ATTR_PRINCIPAL_NAME, authorization.getPrincipalName());
 
         try {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -58,7 +71,7 @@ public class OAuth2AuthorizationMapper {
             throw new IllegalStateException("Ошибка сериализации attributes", e);
         }
 
-        // Токены (авторизационный, access, refresh) – как раньше:
+        // 🔐 Authorization Code
         var code = authorization.getToken(OAuth2AuthorizationCode.class);
         if (code != null) {
             entity.setAuthorizationCodeValue(code.getToken().getTokenValue());
@@ -66,6 +79,7 @@ public class OAuth2AuthorizationMapper {
             entity.setAuthorizationCodeExpiresAt(code.getToken().getExpiresAt());
         }
 
+        // 🔐 Access Token
         var access = authorization.getToken(OAuth2AccessToken.class);
         if (access != null) {
             var token = access.getToken();
@@ -76,6 +90,7 @@ public class OAuth2AuthorizationMapper {
             entity.setAccessTokenScopes(String.join(",", token.getScopes()));
         }
 
+        // 🔐 Refresh Token
         var refresh = authorization.getToken(OAuth2RefreshToken.class);
         if (refresh != null) {
             var token = refresh.getToken();
@@ -89,7 +104,9 @@ public class OAuth2AuthorizationMapper {
 
     public OAuth2Authorization toAuthorization(OAuth2AuthorizationEntity entity) {
         RegisteredClient client = registeredClientRepository.findById(entity.getRegisteredClientId());
-        if (client == null) throw new IllegalArgumentException("Client not found: " + entity.getRegisteredClientId());
+        if (client == null) {
+            throw new IllegalArgumentException("Client not found: " + entity.getRegisteredClientId());
+        }
 
         OAuth2Authorization.Builder builder = OAuth2Authorization.withRegisteredClient(client)
                 .id(entity.getId())
@@ -101,21 +118,31 @@ public class OAuth2AuthorizationMapper {
             builder.attribute("state", entity.getState());
         }
 
-        // 🔄 Десериализация attributes
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             Map<String, Object> attributes = objectMapper.readValue(entity.getAttributes(), new TypeReference<>() {});
-            if (attributes.containsKey("authorization_request_serialized")) {
-                String serialized = (String) attributes.get("authorization_request_serialized");
+
+            // 🔁 Восстановление OAuth2AuthorizationRequest
+            if (attributes.containsKey(ATTR_AUTHZ_REQ_SERIALIZED)) {
+                String serialized = (String) attributes.get(ATTR_AUTHZ_REQ_SERIALIZED);
                 OAuth2AuthorizationRequest deserialized = OAuth2AuthorizationRequestUtils.deserialize(serialized);
                 attributes.put(OAuth2AuthorizationRequest.class.getName(), deserialized);
             }
+
+            // 🔁 Восстановление Authentication
+            if (attributes.containsKey(ATTR_PRINCIPAL_NAME)) {
+                String username = (String) attributes.get(ATTR_PRINCIPAL_NAME);
+                // Здесь можно подставить настоящие роли/authorities, если нужно
+                Authentication authentication = new UsernamePasswordAuthenticationToken(username, null, List.of());
+                attributes.put(Principal.class.getName(), authentication);
+            }
+
             builder.attributes(attrs -> attrs.putAll(attributes));
         } catch (IOException e) {
             throw new IllegalStateException("Ошибка десериализации attributes", e);
         }
 
-        // Токены
+        // 🔐 Authorization Code
         if (entity.getAuthorizationCodeValue() != null) {
             builder.token(new OAuth2AuthorizationCode(
                     entity.getAuthorizationCodeValue(),
@@ -124,6 +151,7 @@ public class OAuth2AuthorizationMapper {
             ));
         }
 
+        // 🔐 Access Token
         if (entity.getAccessTokenValue() != null) {
             builder.token(new OAuth2AccessToken(
                     OAuth2AccessToken.TokenType.BEARER,
@@ -134,6 +162,7 @@ public class OAuth2AuthorizationMapper {
             ));
         }
 
+        // 🔐 Refresh Token
         if (entity.getRefreshTokenValue() != null) {
             builder.token(new OAuth2RefreshToken(
                     entity.getRefreshTokenValue(),
@@ -145,3 +174,4 @@ public class OAuth2AuthorizationMapper {
         return builder.build();
     }
 }
+

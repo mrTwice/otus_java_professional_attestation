@@ -2,6 +2,7 @@ package ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.configu
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.oauth2.server.authorization.settings.OAuth2TokenFormat;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
@@ -31,6 +32,7 @@ public class AuthorizationServerPropertiesConfig {
                 .accessTokenTimeToLive(Duration.ofHours(1))
                 .refreshTokenTimeToLive(Duration.ofDays(30))
                 .reuseRefreshTokens(false)
+                .idTokenSignatureAlgorithm(SignatureAlgorithm.RS256)
                 .build();
     }
 }
