@@ -21,7 +21,7 @@ public class AuthorizationServerPropertiesConfig {
                 .authorizationEndpoint("/oauth2/authorize")
                 .tokenIntrospectionEndpoint("/oauth2/introspect")
                 .tokenRevocationEndpoint("/oauth2/revoke")
-                .oidcUserInfoEndpoint("/oauth2/userinfo")
+                .oidcUserInfoEndpoint("/oauth2/userinfo") //TODO: переделать на стандарт
                 .oidcLogoutEndpoint("/logout")
                 .jwkSetEndpoint("/oauth2/jwks")
                 .build();
@@ -33,7 +33,7 @@ public class AuthorizationServerPropertiesConfig {
                 .accessTokenFormat(OAuth2TokenFormat.SELF_CONTAINED)
                 .accessTokenTimeToLive(Duration.ofHours(1))
                 .refreshTokenTimeToLive(Duration.ofDays(30))
-                .reuseRefreshTokens(false)
+                .reuseRefreshTokens(true)
                 .idTokenSignatureAlgorithm(SignatureAlgorithm.RS256)
                 .build();
     }

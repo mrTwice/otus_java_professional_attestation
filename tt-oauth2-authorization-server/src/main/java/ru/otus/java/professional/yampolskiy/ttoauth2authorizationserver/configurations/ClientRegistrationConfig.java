@@ -72,14 +72,17 @@ public class ClientRegistrationConfig {
                         .scope("email")
                         .scope("read")
                         .scope("write")
+                        .scope("offline_access")
                         .clientSettings(ClientSettings.builder()
                                 .requireAuthorizationConsent(true)
                                 .build())
                         .tokenSettings(tokenSettings)
                         .build();
-
+                LOGGER.info("Registered Client: {}, Grant Types: {}", oidcClient.getClientId(), oidcClient.getAuthorizationGrantTypes());
                 registeredClientRepository.save(oidcClient);
+
             }
+
         };
     }
 

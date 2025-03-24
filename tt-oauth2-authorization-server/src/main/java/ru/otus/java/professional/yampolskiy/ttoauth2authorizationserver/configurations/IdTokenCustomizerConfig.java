@@ -10,7 +10,7 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Toke
 @Configuration
 public class IdTokenCustomizerConfig {
     @Bean
-    public OAuth2TokenCustomizer<JwtEncodingContext> tokenCustomizer(
+    public OAuth2TokenCustomizer<JwtEncodingContext> idTokenCustomizer(
             OidcUserInfoService userInfoService) {
         return (context) -> {
             if (OidcParameterNames.ID_TOKEN.equals(context.getTokenType().getValue())) {

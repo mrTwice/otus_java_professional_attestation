@@ -6,25 +6,27 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Enumeration;
 
 @Component
-public class UserInfoLoggingFilter extends OncePerRequestFilter {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(UserInfoLoggingFilter.class);
+public class CustomOAuth2TokenEndpointFilter extends OncePerRequestFilter {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CustomOAuth2TokenEndpointFilter.class);
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+        if (request.getRequestURI().equals("/oauth2/token")) {
+            LOGGER.info("📥 Запрос на /oauth2/token: method={}, params={}", request.getMethod(), request.getParameterMap());
 
-        if (request.getRequestURI().equals("/oauth2/userinfo")) {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            LOGGER.info("👁 SecurityContext authentication на /userinfo: {}", auth);
+            Enumeration<String> headers = request.getHeaderNames();
+            while (headers.hasMoreElements()) {
+                String header = headers.nextElement();
+                LOGGER.info("🔹 Header: {} = {}", header, request.getHeader(header));
+            }
         }
 
         filterChain.doFilter(request, response);

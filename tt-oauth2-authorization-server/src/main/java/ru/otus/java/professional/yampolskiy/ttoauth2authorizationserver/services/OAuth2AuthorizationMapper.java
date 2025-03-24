@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -22,8 +24,9 @@ import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.reposito
 
 import java.io.IOException;
 import java.security.Principal;
+import java.time.Instant;
+import java.time.format.DateTimeParseException;
 import java.util.*;
-import java.util.logging.Logger;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +35,7 @@ public class OAuth2AuthorizationMapper {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
             .registerModule(new JavaTimeModule()) // ✅ регистрируем поддержку Instant, LocalDateTime и т.п.
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS); // опционально: ISO-8601 вместо epoch
-    private static final Logger logger = Logger.getLogger(OAuth2AuthorizationMapper.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(OAuth2AuthorizationMapper.class);
     private final JpaRegisteredClientRepository registeredClientRepository;
 
     private static final String ATTR_AUTHZ_REQ_SERIALIZED = "authorization_request_serialized";
@@ -92,6 +95,14 @@ public class OAuth2AuthorizationMapper {
             entity.setAccessTokenExpiresAt(token.getExpiresAt());
             entity.setAccessTokenType(token.getTokenType().getValue());
             entity.setAccessTokenScopes(String.join(",", token.getScopes()));
+
+            try {
+                Map<String, Object> metadata = new HashMap<>(access.getMetadata());
+                convertMetadataDates(metadata);  // ✅ Конвертируем даты
+                entity.setAccessTokenMetadata(OBJECT_MAPPER.writeValueAsString(metadata));
+            } catch (JsonProcessingException e) {
+                throw new IllegalStateException("Ошибка сериализации access_token_metadata", e);
+            }
         }
 
         // 🔐 Refresh Token
@@ -101,6 +112,16 @@ public class OAuth2AuthorizationMapper {
             entity.setRefreshTokenValue(token.getTokenValue());
             entity.setRefreshTokenIssuedAt(token.getIssuedAt());
             entity.setRefreshTokenExpiresAt(token.getExpiresAt());
+
+            try {
+                Map<String, Object> metadata = new HashMap<>(refresh.getMetadata());
+                convertMetadataDates(metadata);  // ✅ Конвертируем даты
+                entity.setRefreshTokenMetadata(OBJECT_MAPPER.writeValueAsString(metadata));
+            } catch (JsonProcessingException e) {
+                throw new IllegalStateException("Ошибка сериализации refresh_token_metadata", e);
+            }
+        } else {
+            logger.warn("❌ [DEBUG] Refresh Token НЕ создан!");
         }
 
         // 🆔 ID Token
@@ -112,7 +133,9 @@ public class OAuth2AuthorizationMapper {
             entity.setIdTokenIssuedAt(token.getIssuedAt());
             entity.setIdTokenExpiresAt(token.getExpiresAt());
             try {
-                entity.setIdTokenMetadata(OBJECT_MAPPER.writeValueAsString(token.getClaims()));
+                Map<String, Object> claims = new HashMap<>(token.getClaims());
+                convertMetadataDates(claims);  // ✅ Конвертируем даты
+                entity.setIdTokenMetadata(OBJECT_MAPPER.writeValueAsString(claims));
             } catch (JsonProcessingException e) {
                 throw new IllegalStateException("Ошибка сериализации ID Token claims", e);
             }
@@ -171,29 +194,50 @@ public class OAuth2AuthorizationMapper {
 
         // 🔐 Access Token
         if (entity.getAccessTokenValue() != null) {
-            builder.token(new OAuth2AccessToken(
-                    OAuth2AccessToken.TokenType.BEARER,
-                    entity.getAccessTokenValue(),
-                    entity.getAccessTokenIssuedAt(),
-                    entity.getAccessTokenExpiresAt(),
-                    Set.of(entity.getAccessTokenScopes().split(","))
-            ));
+            try {
+                Map<String, Object> metadata = OBJECT_MAPPER.readValue(entity.getAccessTokenMetadata(), new TypeReference<>() {});
+                convertMetadataDates(metadata);  // ✅ Конвертируем даты перед использованием
+                logger.info("🔄 Загружены метаданные Access Token: {}", metadata);
+
+                builder.token(new OAuth2AccessToken(
+                                OAuth2AccessToken.TokenType.BEARER,
+                                entity.getAccessTokenValue(),
+                                entity.getAccessTokenIssuedAt(),
+                                entity.getAccessTokenExpiresAt(),
+                                Set.of(entity.getAccessTokenScopes().split(","))),
+                        claims -> claims.putAll(metadata) // ✅ Передаем метаданные
+                );
+            } catch (IOException e) {
+                throw new IllegalStateException("Ошибка десериализации access_token_metadata", e);
+            }
         }
+
 
         // 🔐 Refresh Token
         if (entity.getRefreshTokenValue() != null) {
-            builder.token(new OAuth2RefreshToken(
-                    entity.getRefreshTokenValue(),
-                    entity.getRefreshTokenIssuedAt(),
-                    entity.getRefreshTokenExpiresAt()
-            ));
+            try {
+                Map<String, Object> metadata = OBJECT_MAPPER.readValue(entity.getRefreshTokenMetadata(), new TypeReference<>() {});
+                convertMetadataDates(metadata);  // ✅ Конвертируем даты перед использованием
+                logger.info("🔄 Загружены метаданные Refresh Token: {}", metadata);
+
+                builder.token(new OAuth2RefreshToken(
+                                entity.getRefreshTokenValue(),
+                                entity.getRefreshTokenIssuedAt(),
+                                entity.getRefreshTokenExpiresAt()),
+                        claims -> claims.putAll(metadata) // ✅ Передаем метаданные
+                );
+            } catch (IOException e) {
+                throw new IllegalStateException("Ошибка десериализации refresh_token_metadata", e);
+            }
         }
+
 
         // 🆔 ID Token
         if (entity.getIdTokenValue() != null) {
             Map<String, Object> claims = new HashMap<>();
             try {
                 claims = OBJECT_MAPPER.readValue(entity.getIdTokenMetadata(), new TypeReference<>() {});
+                convertMetadataDates(claims);  // ✅ Конвертируем даты перед использованием
             } catch (IOException e) {
                 throw new IllegalStateException("Ошибка десериализации ID Token claims", e);
             }
@@ -208,5 +252,30 @@ public class OAuth2AuthorizationMapper {
 
         return builder.build();
     }
+
+    private void convertMetadataDates(Map<String, Object> metadata) {
+        if (metadata.containsKey("metadata.token.claims")) {
+            Object claimsObj = metadata.get("metadata.token.claims");
+            if (claimsObj instanceof Map) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> claims = (Map<String, Object>) claimsObj;
+                convertInstantField(claims, "iat");
+                convertInstantField(claims, "exp");
+                convertInstantField(claims, "nbf");
+            }
+        }
+    }
+
+    private void convertInstantField(Map<String, Object> map, String key) {
+        Object value = map.get(key);
+        if (value instanceof String) {
+            try {
+                map.put(key, Instant.parse((String) value));  // Теперь компилятор не ругается
+            } catch (DateTimeParseException e) {
+                logger.error("Ошибка преобразования даты {}: {}", key, value, e);
+            }
+        }
+    }
+
 }
 
