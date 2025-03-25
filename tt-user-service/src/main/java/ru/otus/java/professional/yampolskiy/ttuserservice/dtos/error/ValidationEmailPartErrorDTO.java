@@ -1,4 +1,4 @@
-package ru.otus.java.professional.yampolskiy.ttuserservice.dtos;
+package ru.otus.java.professional.yampolskiy.ttuserservice.dtos.error;
 
 
 public class ValidationEmailPartErrorDTO {

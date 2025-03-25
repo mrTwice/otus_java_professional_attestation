@@ -26,18 +26,7 @@ public class AdminUserInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) {
         if (!userRepository.existsByUsername("admin")) {
-            Role adminRole = roleRepository.findByName("ADMIN")
-                    .orElseGet(() -> roleRepository.save(new Role("ADMIN")));
 
-            User admin = User.builder()
-                    .username("admin")
-                    .email("admin@example.com")
-                    .password(passwordEncoder.encode("admin"))
-                    .isActive(true)
-                    .roles(Set.of(adminRole))
-                    .build();
-
-            userRepository.save(admin);
             LOGGER.info("Администратор создан");
         } else {
             LOGGER.info("Администратор уже существует");

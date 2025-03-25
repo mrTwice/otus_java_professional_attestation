@@ -3,15 +3,18 @@ package ru.otus.java.professional.yampolskiy.ttuserservice.mappers;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
-import ru.otus.java.professional.yampolskiy.ttuserservice.dtos.RoleDTO;
-import ru.otus.java.professional.yampolskiy.ttuserservice.dtos.RoleResponseDTO;
+import ru.otus.java.professional.yampolskiy.ttuserservice.dtos.role.RoleDTO;
+import ru.otus.java.professional.yampolskiy.ttuserservice.dtos.role.RoleResponseDTO;
 import ru.otus.java.professional.yampolskiy.ttuserservice.entities.Role;
 
-@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = PermissionMapper.class)
 public interface RoleMapper {
 
     @Mapping(target = "id", ignore = true)
-    Role toEntity(RoleDTO roleDTO);
+    Role toEntityFromRoleDTO(RoleDTO dto);
 
-    RoleResponseDTO toResponseDTO(Role role);
+    RoleResponseDTO toResponseDTOFromRole(Role entity);
+
+    Role toEntityFromResponseDTO(RoleResponseDTO dto);
 }
+

@@ -3,13 +3,16 @@ package ru.otus.java.professional.yampolskiy.ttuserservice.services;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.otus.java.professional.yampolskiy.ttuserservice.entities.Permission;
 import ru.otus.java.professional.yampolskiy.ttuserservice.entities.Role;
 import ru.otus.java.professional.yampolskiy.ttuserservice.exceptions.ResourceNotFoundException;
 import ru.otus.java.professional.yampolskiy.ttuserservice.repositories.RoleRepository;
 import ru.otus.java.professional.yampolskiy.ttuserservice.validators.Validator;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -18,6 +21,7 @@ import java.util.stream.Collectors;
 public class RoleServiceImpl implements RoleService {
 
     private final RoleRepository roleRepository;
+    private final PermissionService permissionService;
     private final Validator<Role> commonRoleValidator;
     private final Validator<Role> roleUniqueValidator;
 
@@ -29,7 +33,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public Role getRoleById(Long id) {
+    public Role getRoleById(UUID id) {
         return roleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found with id: " + id));
     }
@@ -46,20 +50,22 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public Role updateRole(Long id, Role role) {
+    public Role updateRole(UUID id, Role role) {
         commonRoleValidator.validate(role);
         Role existingRole = getRoleById(id);
 
-        if (!existingRole.getName().equals(role.getName())) {
-            roleUniqueValidator.validate(role);
+        if (!existingRole.getName().equals(role.getName()) && roleRepository.existsByName(role.getName())) {
+            throw new IllegalArgumentException("Role with name " + role.getName() + " already exists.");
         }
 
+        Set<Permission> validatedPermissions = permissionService.fetchOrCreatePermissions(role.getPermissions());
         existingRole.setName(role.getName());
+        existingRole.setPermissions(validatedPermissions);
         return roleRepository.save(existingRole);
     }
 
     @Override
-    public void deleteRole(Long id) {
+    public void deleteRole(UUID id) {
         Role role = getRoleById(id);
         roleRepository.delete(role);
     }
@@ -67,12 +73,14 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public Set<Role> validateRoles(Set<Role> roles) {
         if (roles == null || roles.isEmpty()) {
-            roles = Set.of(new Role("USER"));
+            roles = new HashSet<>();
+            roles.add(new Role(UUID.randomUUID(), "USER", new HashSet<>()));
         }
 
         return roles.stream()
                 .map(role -> roleRepository.findByName(role.getName())
-                        .orElseGet(() -> createRole(new Role(role.getName()))))
+                        .orElseGet(() -> createRole(new Role(UUID.randomUUID(), role.getName(), new HashSet<>())))
+                )
                 .collect(Collectors.toSet());
     }
 }

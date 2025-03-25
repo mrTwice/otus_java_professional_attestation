@@ -3,12 +3,14 @@ package ru.otus.java.professional.yampolskiy.ttuserservice.services;
 import ru.otus.java.professional.yampolskiy.ttuserservice.entities.User;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public interface UserService {
 
     User createUser(User user);
 
-    User getUserById(Long id);
+    User getUserById(UUID id);
 
     User getUserByUsername(String username);
 
@@ -20,11 +22,17 @@ public interface UserService {
 
     List<User> getAllActiveUsers();
 
-    User addRoleToUser(Long userId, String roleName);
+    User addRoleToUser(UUID userId, String roleName);
 
-    User removeRoleFromUser(Long userId, String roleName);
+    User removeRoleFromUser(UUID userId, String roleName);
 
-    User updateUser(Long userId, User user);
+    User updateUser(UUID userId, User user);
 
-    void deleteUser(Long userId);
+    void deleteUser(UUID userId);
+
+    User getUserByOidcSubject(String oidcSubject);
+
+    boolean existsByOidcSubject(String oidcSubject);
+
+    List<User> getUsersByOidcProvider(String oidcProvider);
 }

@@ -1,4 +1,4 @@
-package ru.otus.java.professional.yampolskiy.ttuserservice.dtos;
+package ru.otus.java.professional.yampolskiy.ttuserservice.dtos.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,11 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateUserDTO {
+public class UserUpdateDTO {
     private String username;
     private String email;
+    private String firstName;
+    private String lastName;
+    private String pictureUrl;
+    private String locale;
 }

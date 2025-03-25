@@ -6,9 +6,10 @@ import ru.otus.java.professional.yampolskiy.ttuserservice.entities.User;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, UUID> {
 
     Optional<User> findByUsername(String username);
 
@@ -19,4 +20,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByEmail(String email);
 
     List<User> findAllByIsActiveTrue();
+
+    Optional<User> findByOidcSubject(String oidcSubject);
+
+    boolean existsByOidcSubject(String oidcSubject);
+
+    List<User> findByOidcProvider(String oidcProvider);
 }

@@ -1,4 +1,4 @@
-package ru.otus.java.professional.yampolskiy.ttuserservice.dtos;
+package ru.otus.java.professional.yampolskiy.ttuserservice.dtos.error;
 
 import java.time.LocalDateTime;
 import java.util.List;

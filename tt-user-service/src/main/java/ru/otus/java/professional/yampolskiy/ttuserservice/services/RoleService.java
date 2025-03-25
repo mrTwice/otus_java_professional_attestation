@@ -4,20 +4,21 @@ import ru.otus.java.professional.yampolskiy.ttuserservice.entities.Role;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 public interface RoleService {
 
     Role createRole(Role role);
 
-    Role getRoleById(Long id);
+    Role getRoleById(UUID id);
 
     Role getRoleByName(String name);
 
     List<Role> getAllRoles();
 
-    Role updateRole(Long id, Role role);
+    Role updateRole(UUID id, Role role);
 
-    void deleteRole(Long id);
+    void deleteRole(UUID id);
 
     Set<Role> validateRoles(Set<Role> roles);
 }
