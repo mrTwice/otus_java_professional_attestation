@@ -11,6 +11,8 @@ import ru.otus.java.professional.yampolskiy.ttuserservice.entities.Permission;
 public interface PermissionMapper {
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     Permission toEntityFromPermissionDTO(PermissionDTO dto);
 
     PermissionResponseDTO toResponseDTOFromEntity(Permission entity);

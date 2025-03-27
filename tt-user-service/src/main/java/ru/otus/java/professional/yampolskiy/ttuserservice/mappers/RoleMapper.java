@@ -11,6 +11,8 @@ import ru.otus.java.professional.yampolskiy.ttuserservice.entities.Role;
 public interface RoleMapper {
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     Role toEntityFromRoleDTO(RoleDTO dto);
 
     RoleResponseDTO toResponseDTOFromRole(Role entity);

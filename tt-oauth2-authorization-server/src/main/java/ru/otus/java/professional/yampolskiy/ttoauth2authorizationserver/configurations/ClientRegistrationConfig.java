@@ -87,6 +87,37 @@ public class ClientRegistrationConfig {
     }
 
     @Bean
+    @DependsOn("entityManagerFactory")
+    public CommandLineRunner registerInternalClient(
+            JpaRegisteredClientRepository registeredClientRepository,
+            PasswordEncoder passwordEncoder,
+            TokenSettings tokenSettings
+    ) {
+        return args -> {
+            if (registeredClientRepository.findByClientId("internal-service-client") == null) {
+                LOGGER.info("🔐 Registering internal-service-client...");
+
+                RegisteredClient internalClient = RegisteredClient.withId(UUID.randomUUID().toString())
+                        .clientId("internal-service-client")
+                        .clientSecret(passwordEncoder.encode("internal-secret"))
+                        .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+                        .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+                        .scope("user:view")
+                        .scope("user:manage")
+                        .scope("user:delete")
+                        .tokenSettings(tokenSettings)
+                        .clientSettings(ClientSettings.builder()
+                                .requireAuthorizationConsent(false)
+                                .build())
+                        .build();
+
+                registeredClientRepository.save(internalClient);
+                LOGGER.info("✅ internal-service-client registered");
+            }
+        };
+    }
+
+    @Bean
     public UserDetailsService userDetailsService(
             PasswordEncoder passwordEncoder
     ) {

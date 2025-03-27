@@ -72,15 +72,27 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public Set<Role> validateRoles(Set<Role> roles) {
-        if (roles == null || roles.isEmpty()) {
-            roles = new HashSet<>();
-            roles.add(new Role(UUID.randomUUID(), "USER", new HashSet<>()));
-        }
-
+        roles.forEach(commonRoleValidator::validate);
         return roles.stream()
                 .map(role -> roleRepository.findByName(role.getName())
-                        .orElseGet(() -> createRole(new Role(UUID.randomUUID(), role.getName(), new HashSet<>())))
+                        .orElseThrow(() -> new ResourceNotFoundException("Role not found with name: " + role.getName()))
                 )
                 .collect(Collectors.toSet());
+    }
+
+    @Override
+    public Role createOrUpdateRoleWithPermissions(String roleName, Set<Permission> permissions) {
+        Role role = roleRepository.findByName(roleName)
+                .orElseGet(() -> Role.builder().name(roleName).permissions(new HashSet<>()).build());
+
+        Set<Permission> validatedPermissions = permissionService.fetchOrCreatePermissions(permissions);
+        role.setPermissions(validatedPermissions);
+
+        if (role.getId() == null) {
+            commonRoleValidator.validate(role);
+            roleUniqueValidator.validate(role);
+        }
+
+        return roleRepository.save(role);
     }
 }

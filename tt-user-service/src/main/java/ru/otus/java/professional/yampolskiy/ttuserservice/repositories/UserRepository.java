@@ -26,4 +26,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     boolean existsByOidcSubject(String oidcSubject);
 
     List<User> findByOidcProvider(String oidcProvider);
+
+    Optional<User> findByOidcSubjectAndOidcProvider(String oidcSubject, String oidcProvider);
 }

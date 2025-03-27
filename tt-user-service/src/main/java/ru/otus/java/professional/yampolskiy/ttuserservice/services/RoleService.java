@@ -1,5 +1,6 @@
 package ru.otus.java.professional.yampolskiy.ttuserservice.services;
 
+import ru.otus.java.professional.yampolskiy.ttuserservice.entities.Permission;
 import ru.otus.java.professional.yampolskiy.ttuserservice.entities.Role;
 
 import java.util.List;
@@ -21,4 +22,7 @@ public interface RoleService {
     void deleteRole(UUID id);
 
     Set<Role> validateRoles(Set<Role> roles);
+
+    Role createOrUpdateRoleWithPermissions(String roleName, Set<Permission> permissions);
+
 }

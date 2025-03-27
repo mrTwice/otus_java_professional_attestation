@@ -35,4 +35,8 @@ public interface UserService {
     boolean existsByOidcSubject(String oidcSubject);
 
     List<User> getUsersByOidcProvider(String oidcProvider);
+
+    User getUserByOidcSubjectAndProvider(String subject, String provider);
+
+    void updatePasswordHash(UUID userId, String newPasswordHash);
 }

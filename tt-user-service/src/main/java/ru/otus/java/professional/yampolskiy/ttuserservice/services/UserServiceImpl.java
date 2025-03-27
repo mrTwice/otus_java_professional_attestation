@@ -1,6 +1,7 @@
 package ru.otus.java.professional.yampolskiy.ttuserservice.services;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +15,7 @@ import ru.otus.java.professional.yampolskiy.ttuserservice.validators.Validator;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -122,4 +124,21 @@ public class UserServiceImpl implements UserService {
     public List<User> getUsersByOidcProvider(String oidcProvider) {
         return userRepository.findByOidcProvider(oidcProvider);
     }
+
+    @Override
+    public User getUserByOidcSubjectAndProvider(String subject, String provider) {
+        return userRepository.findByOidcSubjectAndOidcProvider(subject, provider)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User not found with OIDC provider " + provider + " and subject " + subject));
+    }
+
+    @Override
+    public void updatePasswordHash(UUID userId, String newPasswordHash) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        user.setPassword(newPasswordHash);
+        userRepository.save(user);
+    }
+
 }
