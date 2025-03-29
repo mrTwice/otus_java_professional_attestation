@@ -1,5 +1,7 @@
 package ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.auth.infrastructure.config;
 
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
@@ -10,6 +12,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.authorization.token.*;
+import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.auth.core.service.JwkService;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -25,8 +28,9 @@ public class JwtSecurityConfig {
     }
 
     @Bean
-    public JwtDecoder jwtDecoder(KeyPair keyPair) {
-        return NimbusJwtDecoder.withPublicKey((RSAPublicKey) keyPair.getPublic()).build();
+    public JwtDecoder jwtDecoder(JwkService jwkService) throws JOSEException {
+        RSAKey rsaKey = (RSAKey) jwkService.loadOrCreateJwkSet().getKeys().getFirst();
+        return NimbusJwtDecoder.withPublicKey(rsaKey.toRSAPublicKey()).build();
     }
 
     @Bean
@@ -39,20 +43,8 @@ public class JwtSecurityConfig {
     }
 
     @Bean
-    public KeyPair keyPair() throws Exception {
-        KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
-        generator.initialize(2048);
-        return generator.generateKeyPair();
-    }
-
-    @Bean
-    public JWKSource<SecurityContext> jwkSource(KeyPair keyPair) {
-        RSAKey rsaKey = new RSAKey.Builder((RSAPublicKey) keyPair.getPublic())
-                .privateKey((RSAPrivateKey) keyPair.getPrivate())
-                .keyID(UUID.randomUUID().toString())
-                .build();
-
-        return (jwkSelector, securityContext) ->
-                jwkSelector.select(new com.nimbusds.jose.jwk.JWKSet(rsaKey));
+    public JWKSource<SecurityContext> jwkSource(JwkService jwkService) {
+        JWKSet jwkSet = jwkService.loadOrCreateJwkSet();
+        return (jwkSelector, ctx) -> jwkSelector.select(jwkSet);
     }
 }
