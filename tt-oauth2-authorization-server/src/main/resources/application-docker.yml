@@ -19,6 +19,9 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+jwk:
+  encryption:
+    secret: change-me-super-secret
 logging:
   level:
     org.springframework.security: DEBUG

@@ -15,6 +15,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
@@ -42,7 +43,8 @@ public class AuthorizationSecurityConfig {
             DatabaseAuthorizationService authorizationService,
             AuthenticationProvider loggingOidcUserInfoAuthenticationProvider,
             AuthenticationProvider clientAuthenticationProvider,
-            Filter jwtDebugLogger
+            Filter jwtDebugLogger,
+            JwtDecoder jwtDecoder
     ) throws Exception {
         OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
                 OAuth2AuthorizationServerConfigurer.authorizationServer();
@@ -80,7 +82,7 @@ public class AuthorizationSecurityConfig {
                 .addFilterAfter(jwtDebugLogger, BearerTokenAuthenticationFilter.class)
 
                 .oauth2ResourceServer(resourceServer ->
-                        resourceServer.jwt(Customizer.withDefaults())
+                        resourceServer.jwt(jwt -> jwt.decoder(jwtDecoder))
                 )
                 .authorizeHttpRequests((authorize) ->
                         authorize
