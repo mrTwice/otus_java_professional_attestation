@@ -1,12 +1,12 @@
 services:
-  task-service-postgres:
+  tt-task-service-postgres:
     build:
       context: .
       dockerfile: Dockerfile
       args:
         - NO_CACHE=true
     image: postgres_custom_ru:latest
-    container_name: task-service-postgres
+    container_name: tt-task-service-postgres
     ports:
       - "5432:5432"
     environment:
