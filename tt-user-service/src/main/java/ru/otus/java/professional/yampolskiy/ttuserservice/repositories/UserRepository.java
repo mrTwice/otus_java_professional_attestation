@@ -1,6 +1,8 @@
 package ru.otus.java.professional.yampolskiy.ttuserservice.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ru.otus.java.professional.yampolskiy.ttuserservice.entities.User;
 
@@ -28,4 +30,12 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     List<User> findByOidcProvider(String oidcProvider);
 
     Optional<User> findByOidcSubjectAndOidcProvider(String oidcSubject, String oidcProvider);
+
+    @Query("""
+    SELECT u FROM User u
+    LEFT JOIN FETCH u.roles r
+    LEFT JOIN FETCH r.permissions
+    WHERE u.username = :username
+""")
+    Optional<User> findByUsernameWithRolesAndPermissions(@Param("username") String username);
 }

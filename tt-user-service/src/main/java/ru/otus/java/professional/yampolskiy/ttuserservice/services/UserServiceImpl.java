@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserByUsername(String username) {
-        return userRepository.findByUsername(username)
+        return userRepository.findByUsernameWithRolesAndPermissions(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + username));
     }
 

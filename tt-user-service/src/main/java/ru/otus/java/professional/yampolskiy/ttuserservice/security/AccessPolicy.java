@@ -2,6 +2,7 @@ package ru.otus.java.professional.yampolskiy.ttuserservice.security;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
 import java.util.Arrays;
 import java.util.List;
@@ -92,7 +93,8 @@ public class AccessPolicy {
     }
 
     public boolean canViewUsers(Authentication authentication) {
-        return hasPermissionOrRole(authentication, "user:view", "ADMIN");
+        return hasPermissionOrRole(authentication, "user:view", "ADMIN")
+                || hasScope(authentication, "user:view");
     }
 
     public boolean canUpdateUsers(Authentication authentication) {
@@ -122,8 +124,18 @@ public class AccessPolicy {
         return isSelf(authentication, targetUserId) || hasRole(authentication, "ADMIN");
     }
 
+    public boolean hasScope(Authentication authentication, String scope) {
+        Jwt jwt = extractJwt(authentication);
+        if (jwt == null) return false;
+
+        List<String> scopes = jwt.getClaimAsStringList("scope");
+        return scopes != null && scopes.contains(scope);
+    }
+
     private Jwt extractJwt(Authentication authentication) {
-        if (authentication == null) return null;
+        if (authentication instanceof JwtAuthenticationToken jwtAuth) {
+            return jwtAuth.getToken();
+        }
 
         Object principal = authentication.getPrincipal();
         if (principal instanceof Jwt jwt) {

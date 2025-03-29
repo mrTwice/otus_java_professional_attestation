@@ -26,7 +26,7 @@ public class TestUserInitializer implements CommandLineRunner {
     public void run(String... args) {
         log.info("🧪 Initializing test user...");
 
-        String username = "testuser";
+        String username = "test-user";
         String email = "testuser@example.com";
 
         if (userService.existsByUsername(username)) {
