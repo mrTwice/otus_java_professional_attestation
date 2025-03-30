@@ -12,6 +12,8 @@ public class LoggingDaoAuthenticationProvider extends DaoAuthenticationProvider 
 
     public LoggingDaoAuthenticationProvider(UserDetailsService userDetailsService,
                                             PasswordEncoder passwordEncoder) {
+        log.info("➡️ Инициализируем LoggingDaoAuthenticationProvider");
+
         setUserDetailsService(userDetailsService);
         setPasswordEncoder(passwordEncoder);
     }

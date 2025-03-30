@@ -22,6 +22,20 @@ spring:
 jwk:
   encryption:
     secret: change-me-super-secret
+
+auth-server:
+  base-uri: http://localhost:8080
+
+user-service:
+  base-uri: http://localhost:9591
+  auth:
+    client-id: internal-service-client
+    client-secret: internal-secret
+    scopes:
+      - user:view
+      - user:manage
+      - user:delete
+
 logging:
   level:
     org.springframework.security: DEBUG

@@ -1,24 +1,17 @@
 package ru.otus.java.professional.yampolskiy.ttuserservice.services;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.otus.java.professional.yampolskiy.ttuserservice.entities.Role;
 import ru.otus.java.professional.yampolskiy.ttuserservice.entities.User;
-import ru.otus.java.professional.yampolskiy.ttuserservice.exceptions.DuplicateResourceException;
 import ru.otus.java.professional.yampolskiy.ttuserservice.exceptions.ResourceNotFoundException;
-import ru.otus.java.professional.yampolskiy.ttuserservice.repositories.RoleRepository;
 import ru.otus.java.professional.yampolskiy.ttuserservice.repositories.UserRepository;
 import ru.otus.java.professional.yampolskiy.ttuserservice.validators.Validator;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -70,7 +63,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> getAllActiveUsers() {
-        return userRepository.findAllByIsActiveTrue();
+        return userRepository.findAllByActiveTrue();
     }
 
     @Override
@@ -110,13 +103,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserByOidcSubject(String oidcSubject) {
+    public User getUserByOidcSubject(UUID oidcSubject) {
         return userRepository.findByOidcSubject(oidcSubject)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with OIDC subject: " + oidcSubject));
     }
 
     @Override
-    public boolean existsByOidcSubject(String oidcSubject) {
+    public boolean existsByOidcSubject(UUID oidcSubject) {
         return userRepository.existsByOidcSubject(oidcSubject);
     }
 
@@ -126,7 +119,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserByOidcSubjectAndProvider(String subject, String provider) {
+    public User getUserByOidcSubjectAndProvider(UUID subject, String provider) {
         return userRepository.findByOidcSubjectAndOidcProvider(subject, provider)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "User not found with OIDC provider " + provider + " and subject " + subject));

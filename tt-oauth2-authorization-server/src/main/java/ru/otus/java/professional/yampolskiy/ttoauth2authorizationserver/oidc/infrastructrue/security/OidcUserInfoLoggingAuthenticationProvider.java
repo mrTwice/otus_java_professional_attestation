@@ -13,6 +13,7 @@ public class OidcUserInfoLoggingAuthenticationProvider implements Authentication
     private final OidcUserInfoAuthenticationProvider delegate;
 
     public OidcUserInfoLoggingAuthenticationProvider(OidcUserInfoAuthenticationProvider delegate) {
+        log.info("➡️ Инициализируем OidcUserInfoLoggingAuthenticationProvider");
         this.delegate = delegate;
     }
 

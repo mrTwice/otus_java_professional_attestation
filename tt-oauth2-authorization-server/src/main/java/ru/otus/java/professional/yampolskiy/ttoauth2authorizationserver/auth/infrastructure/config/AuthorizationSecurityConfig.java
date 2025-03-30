@@ -44,19 +44,25 @@ public class AuthorizationSecurityConfig {
             AuthenticationProvider loggingOidcUserInfoAuthenticationProvider,
             AuthenticationProvider clientAuthenticationProvider,
             Filter jwtDebugLogger,
-            JwtDecoder jwtDecoder
+            JwtDecoder jwtDecoder,
+            AuthenticationProvider authorizationCodeAuthenticationProvider,
+            AuthenticationProvider authorizationCodeRequestAuthenticationProvider
     ) throws Exception {
         OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
                 OAuth2AuthorizationServerConfigurer.authorizationServer();
 
         http
                 .authenticationProvider(clientAuthenticationProvider)
+                .authenticationProvider(authorizationCodeRequestAuthenticationProvider)
+                .authenticationProvider(authorizationCodeAuthenticationProvider)
                 .securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
                 .with(authorizationServerConfigurer, (authorizationServer) ->
                         authorizationServer
+                                .authorizationService(authorizationService)
                                 .authorizationEndpoint(authorizationEndpoint ->
                                         authorizationEndpoint.authorizationRequestConverter(new AuthorizationCodeRequestLogger())
                                 )
+
                                 .oidc(oidc -> oidc
                                 .userInfoEndpoint(userInfo -> {
                                     LOGGER.info("✅ Конфигурируем userInfoEndpoint");
@@ -138,5 +144,4 @@ public class AuthorizationSecurityConfig {
             }
         };
     }
-
 }

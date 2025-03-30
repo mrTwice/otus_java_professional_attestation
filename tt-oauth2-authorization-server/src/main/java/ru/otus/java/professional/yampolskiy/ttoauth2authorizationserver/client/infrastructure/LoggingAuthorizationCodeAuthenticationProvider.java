@@ -12,6 +12,7 @@ public class LoggingAuthorizationCodeAuthenticationProvider implements Authentic
     private final OAuth2AuthorizationCodeAuthenticationProvider delegate;
 
     public LoggingAuthorizationCodeAuthenticationProvider(OAuth2AuthorizationCodeAuthenticationProvider delegate) {
+        log.info("➡️ Инициализируем LoggingAuthorizationCodeAuthenticationProvider");
         this.delegate = delegate;
     }
 

@@ -10,7 +10,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Builder
 public class UserAdminUpdateDTO {
-    private boolean isActive;
+    private boolean active;
     private boolean emailVerified;
     private Set<String> roles;
 }

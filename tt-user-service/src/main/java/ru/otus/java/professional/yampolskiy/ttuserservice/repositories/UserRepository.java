@@ -21,15 +21,15 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     boolean existsByEmail(String email);
 
-    List<User> findAllByIsActiveTrue();
+    List<User> findAllByActiveTrue();
 
-    Optional<User> findByOidcSubject(String oidcSubject);
+    Optional<User> findByOidcSubject(UUID oidcSubject);
 
-    boolean existsByOidcSubject(String oidcSubject);
+    boolean existsByOidcSubject(UUID oidcSubject);
 
     List<User> findByOidcProvider(String oidcProvider);
 
-    Optional<User> findByOidcSubjectAndOidcProvider(String oidcSubject, String oidcProvider);
+    Optional<User> findByOidcSubjectAndOidcProvider(UUID oidcSubject, String oidcProvider);
 
     @Query("""
     SELECT u FROM User u

@@ -110,14 +110,14 @@ public class UserController {
 
     @GetMapping("/by-subject")
     @PreAuthorize("@accessPolicy.canViewUsers(authentication)")
-    public ResponseEntity<UserPrincipalDTO> getUserBySubject(@RequestParam String subject) {
+    public ResponseEntity<UserPrincipalDTO> getUserBySubject(@RequestParam UUID subject) {
         User user = userService.getUserByOidcSubject(subject);
         return ResponseEntity.ok(userMapper.toPrincipalDTO(user));
     }
 
     @GetMapping("/exists")
     @PreAuthorize("@accessPolicy.canViewUsers(authentication)")
-    public ResponseEntity<Boolean> exists(@RequestParam String subject) {
+    public ResponseEntity<Boolean> exists(@RequestParam UUID subject) {
         return ResponseEntity.ok(userService.existsByOidcSubject(subject));
     }
 
@@ -139,7 +139,7 @@ public class UserController {
 
     @GetMapping("/auth/profile/oidc")
     @PreAuthorize("@accessPolicy.canViewUsers(authentication)")
-    public ResponseEntity<UserPrincipalDTO> getPrincipalByOidcAndProvider(@RequestParam String provider, @RequestParam String subject) {
+    public ResponseEntity<UserPrincipalDTO> getPrincipalByOidcAndProvider(@RequestParam String provider, @RequestParam UUID subject) {
         User user = userService.getUserByOidcSubjectAndProvider(subject, provider);
         return ResponseEntity.ok(userMapper.toPrincipalDTO(user));
     }

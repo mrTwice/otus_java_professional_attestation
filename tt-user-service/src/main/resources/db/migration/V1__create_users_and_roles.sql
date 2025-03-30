@@ -4,24 +4,24 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- Таблица пользователей
 CREATE TABLE users
 (
-    id            UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    username      VARCHAR(50) UNIQUE NOT NULL,
-    password      TEXT DEFAULT NULL,
-    email         VARCHAR(100) UNIQUE NOT NULL,
-    is_active     BOOLEAN DEFAULT true,
-    first_name    VARCHAR(100),
-    last_name     VARCHAR(100),
-    picture_url   TEXT,
-    locale        VARCHAR(10),
-    email_verified BOOLEAN DEFAULT false,
+    id             UUID PRIMARY KEY,
+    username       VARCHAR(50) UNIQUE  NOT NULL,
+    password       TEXT        DEFAULT NULL,
+    email          VARCHAR(100) UNIQUE NOT NULL,
+    is_active      BOOLEAN     DEFAULT true,
+    first_name     VARCHAR(100),
+    last_name      VARCHAR(100),
+    picture_url    TEXT,
+    locale         VARCHAR(10),
+    email_verified BOOLEAN     DEFAULT false,
 
     -- OIDC (если пользователь входит через Google, Keycloak и т. д.)
-    oidc_provider VARCHAR(50) DEFAULT NULL,  -- Google, GitHub, Keycloak
-    oidc_subject  VARCHAR(255) UNIQUE DEFAULT NULL, -- Уникальный ID пользователя в OIDC
+    oidc_provider  VARCHAR(50) DEFAULT NULL,     -- Google, GitHub, Keycloak
+    oidc_subject   UUID UNIQUE         NOT NULL, -- Уникальный ID пользователя в OIDC
 
-    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at    TIMESTAMP NULL
+    created_at     TIMESTAMP   DEFAULT CURRENT_TIMESTAMP,
+    updated_at     TIMESTAMP   DEFAULT CURRENT_TIMESTAMP,
+    deleted_at     TIMESTAMP           NULL
 );
 
 -- Таблица ролей
@@ -36,7 +36,7 @@ CREATE TABLE permissions
 (
     id          UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     name        VARCHAR(50) UNIQUE NOT NULL,
-    description TEXT NOT NULL
+    description TEXT               NOT NULL
 );
 
 -- Таблица связи пользователей и ролей

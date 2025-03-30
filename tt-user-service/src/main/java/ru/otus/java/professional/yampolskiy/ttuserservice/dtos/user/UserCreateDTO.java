@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+import java.time.LocalDate;
+import java.util.Map;
 import java.util.Set;
 
 @Getter
@@ -25,7 +27,16 @@ public class UserCreateDTO {
     private String email;
 
     private String firstName;
+    private String middleName;
     private String lastName;
+    private String nickname;
     private String pictureUrl;
+    private String profile;
+    private String website;
     private String locale;
+    private String gender;
+    private LocalDate birthdate;
+    private String zoneinfo;
+    private String phoneNumber;
+    private Map<String, Object> address;
 }

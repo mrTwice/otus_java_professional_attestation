@@ -12,6 +12,7 @@ public class ClientAuthenticationLoggingProvider implements AuthenticationProvid
     private final ClientSecretAuthenticationProvider delegate;
 
     public ClientAuthenticationLoggingProvider(ClientSecretAuthenticationProvider delegate) {
+        log.info("➡️ Инициализируем ClientAuthenticationLoggingProvider");
         this.delegate = delegate;
     }
 

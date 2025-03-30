@@ -14,42 +14,47 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, uses = RoleMapper.class)
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
+        uses = RoleMapper.class,
+        unmappedTargetPolicy = ReportingPolicy.WARN
+)
 public abstract class UserMapper {
 
-     @Autowired
+    @Autowired
     protected PasswordEncoder passwordEncoder;
 
-    @Mapping(target = "id", ignore = true) // ID генерируется БД
-    @Mapping(target = "createdAt", ignore = true) // Управляется Hibernate
-    @Mapping(target = "updatedAt", ignore = true) // Управляется Hibernate
-    @Mapping(target = "deletedAt", ignore = true) // Управляется Hibernate
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "deletedAt", ignore = true)
+    @Mapping(target = "roles", ignore = true)
     @Mapping(target = "password", qualifiedByName = "encodePassword")
-    @Mapping(target = "roles", ignore = true) // Роли мапятся отдельно
+    @Mapping(target = "emailVerified", constant = "false")
+    @Mapping(target = "active", constant = "true")
+    @Mapping(target = "locked", constant = "false")
+    @Mapping(target = "updatedAtOidc", ignore = true)
     public abstract User toEntityFromUserCreateDTO(UserCreateDTO dto);
 
     @Mapping(target = "roles", qualifiedByName = "rolesToStringSet")
     public abstract UserResponseDTO toResponseDTOFromEntity(User entity);
 
-    @Mapping(target = "id", ignore = true) // ID не обновляем
-    @Mapping(target = "password", ignore = true) // Пароль не меняем в этом методе
-    @Mapping(target = "roles", ignore = true) // Роли отдельно обновляются
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "username", ignore = true)
+    @Mapping(target = "email", ignore = true)
+    @Mapping(target = "password", ignore = true)
+    @Mapping(target = "roles", qualifiedByName = "stringSetToRoles")
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "deletedAt", ignore = true)
+    public abstract void updateEntityFromAdminDTO(UserAdminUpdateDTO dto, @MappingTarget User entity);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "password", ignore = true)
+    @Mapping(target = "roles", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "deletedAt", ignore = true)
     public abstract void updateEntityFromUpdateDTO(UserUpdateDTO dto, @MappingTarget User entity);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "password", ignore = true)
-    @Mapping(target = "username", ignore = true) // Админ не должен менять username
-    @Mapping(target = "email", ignore = true) // Email тоже фиксированный
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "deletedAt", ignore = true)
-    @Mapping(target = "roles", qualifiedByName = "stringSetToRoles")
-    public abstract void updateEntityFromAdminDTO(UserAdminUpdateDTO dto, @MappingTarget User entity);
-
-    @Mapping(target = "passwordHash", source = "password")
     @Mapping(target = "roles", expression = "java(mapRoles(user))")
     @Mapping(target = "permissions", expression = "java(mapPermissions(user))")
     public abstract UserPrincipalDTO toPrincipalDTO(User user);
@@ -67,25 +72,11 @@ public abstract class UserMapper {
                 .collect(Collectors.toSet());
     }
 
-    @Named("rolesToPermissions")
-    protected Set<String> mapPermissions(Set<Role> roles) {
-        if (roles == null || roles.isEmpty()) {
-            return Collections.emptySet();
-        }
-        return roles.stream()
-                .flatMap(role -> role.getPermissions().stream())
-                .map(Permission::getName)
-                .collect(Collectors.toSet());
-    }
-
     @Named("rolesToStringSet")
     protected Set<String> mapRoles(Set<Role> roles) {
-        return roles != null ? roles.stream().map(Role::getName).collect(Collectors.toSet()) : Collections.emptySet();
-    }
-
-    @Named("encodePassword")
-    protected String encodePassword(String password) {
-        return password != null ? passwordEncoder.encode(password) : null;
+        return roles != null
+                ? roles.stream().map(Role::getName).collect(Collectors.toSet())
+                : Collections.emptySet();
     }
 
     @Named("stringSetToRoles")
@@ -93,12 +84,16 @@ public abstract class UserMapper {
         if (roleNames == null || roleNames.isEmpty()) {
             return Collections.emptySet();
         }
-        return roleNames.stream().map(roleName -> {
-            Role role = new Role();
-            role.setName(roleName);
-            return role;
-        }).collect(Collectors.toSet());
+        return roleNames.stream()
+                .map(name -> Role.builder().name(name).build())
+                .collect(Collectors.toSet());
+    }
+
+    @Named("encodePassword")
+    protected String encodePassword(String password) {
+        return password != null ? passwordEncoder.encode(password) : null;
     }
 }
+
 
 
