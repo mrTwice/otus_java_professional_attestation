@@ -12,6 +12,7 @@ import ru.otus.java.professional.yampolskiy.ttuserservice.dtos.error.ValidationE
 import ru.otus.java.professional.yampolskiy.ttuserservice.exceptions.DuplicateResourceException;
 import ru.otus.java.professional.yampolskiy.ttuserservice.exceptions.ResourceNotFoundException;
 import ru.otus.java.professional.yampolskiy.ttuserservice.exceptions.ValidationEmailException;
+import ru.otus.java.professional.yampolskiy.ttuserservice.exceptions.ValidationException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -38,6 +39,12 @@ public class GlobalExceptionHandler {
                 HttpStatus.UNPROCESSABLE_ENTITY
         );
     }
+
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<ErrorDTO> handleValidationException(ValidationException e) {
+        return new ResponseEntity<>(new ErrorDTO("UNPROCESSABLE_ENTITY", e.getMessage()),HttpStatus.UNPROCESSABLE_ENTITY);
+    }
+
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorDTO> handleGenericException(Exception e) {

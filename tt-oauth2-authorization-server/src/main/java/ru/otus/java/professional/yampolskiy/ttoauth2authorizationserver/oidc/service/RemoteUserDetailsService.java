@@ -8,9 +8,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.external.exceptions.IntegrationException;
-import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.external.users.client.UserClient;
-import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.external.users.dto.UserPrincipalDTO;
+import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.integrations.exceptions.IntegrationException;
+import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.integrations.users.client.UserProfileClient;
+import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.integrations.users.dto.UserPrincipalDTO;
 
 import java.time.Instant;
 
@@ -19,12 +19,13 @@ import java.time.Instant;
 @Slf4j
 public class RemoteUserDetailsService implements UserDetailsService {
 
-    private final UserClient userClient;
+    //TODO подумать о переносе сервиса в external/users
+    private final UserProfileClient userProfileClient;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         try {
-            UserPrincipalDTO user = userClient.findByUsername(username);
+            UserPrincipalDTO user = userProfileClient.findByUsername(username);
             log.debug("👤 DTO от user-service: {}", user.toString());
             log.debug("👤 Получен пользователь: {}, active={}", user.getUsername(), user.isActive());
             return User.withUsername(user.getUsername())

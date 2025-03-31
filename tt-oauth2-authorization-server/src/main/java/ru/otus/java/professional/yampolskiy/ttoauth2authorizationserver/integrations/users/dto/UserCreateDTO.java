@@ -1,28 +1,48 @@
-package ru.otus.java.professional.yampolskiy.ttuserservice.dtos.user;
+package ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.integrations.users.dto;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public class UserPrincipalDTO {
+public class UserCreateDTO {
+
+    @NotNull
     private UUID id;
+
+    @NotBlank
+    @Size(min = 3, max = 50)
     private String username;
-    private String email;
+
+    @NotBlank
     private String password;
+
+    @NotBlank
+    @Email
+    private String email;
+
+    @NotBlank
+    private String oidcProvider;
+
+    @NotNull
+    private String oidcSubject;
+
     private boolean emailVerified;
     private boolean active;
     private boolean locked;
-    private Instant credentialsExpireAt;
-    private Instant accountExpireAt;
+    private boolean phoneNumberVerified;
+
+    // optional user profile
     private String firstName;
     private String middleName;
     private String lastName;
@@ -35,12 +55,5 @@ public class UserPrincipalDTO {
     private LocalDate birthdate;
     private String zoneinfo;
     private String phoneNumber;
-    private boolean phoneNumberVerified;
-    private String oidcSubject;
-    private String oidcProvider;
-    private Instant updatedAtOidc;
     private Map<String, Object> address;
-
-    private Set<String> roles;
-    private Set<String> permissions;
 }

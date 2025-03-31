@@ -76,7 +76,7 @@ public class TestUserInitializer implements CommandLineRunner {
                 .active(true)
                 .locked(false)
                 .oidcProvider("local")
-                .oidcSubject(userId)
+                .oidcSubject(userId.toString())
                 .roles(Set.of(adminRole))
                 .build();
 

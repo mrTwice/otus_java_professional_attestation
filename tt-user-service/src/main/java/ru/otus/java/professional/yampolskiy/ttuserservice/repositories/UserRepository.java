@@ -23,13 +23,13 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     List<User> findAllByActiveTrue();
 
-    Optional<User> findByOidcSubject(UUID oidcSubject);
+    Optional<User> findByOidcSubject(String oidcSubject);
 
-    boolean existsByOidcSubject(UUID oidcSubject);
+    boolean existsByOidcSubject(String oidcSubject);
 
     List<User> findByOidcProvider(String oidcProvider);
 
-    Optional<User> findByOidcSubjectAndOidcProvider(UUID oidcSubject, String oidcProvider);
+    Optional<User> findByOidcSubjectAndOidcProvider(String oidcSubject, String oidcProvider);
 
     @Query("""
     SELECT u FROM User u

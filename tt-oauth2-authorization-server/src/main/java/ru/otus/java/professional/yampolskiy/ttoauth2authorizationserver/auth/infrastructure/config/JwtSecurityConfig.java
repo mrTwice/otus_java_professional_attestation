@@ -16,6 +16,8 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.authorization.token.*;
 import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.auth.core.service.JwkService;
 
+import java.util.List;
+
 @Configuration
 public class JwtSecurityConfig {
     @Bean
@@ -46,12 +48,28 @@ public class JwtSecurityConfig {
     }
 
     @Bean
-    public OAuth2TokenGenerator<?> tokenGenerator(JwtEncoder jwtEncoder) {
+    public OAuth2TokenGenerator<?> tokenGenerator(
+            JwtEncoder jwtEncoder,
+            OAuth2TokenCustomizer<JwtEncodingContext> combinedCustomizer) {
         JwtGenerator jwtGenerator = new JwtGenerator(jwtEncoder);
+        jwtGenerator.setJwtCustomizer(combinedCustomizer);
         OAuth2AccessTokenGenerator accessTokenGenerator = new OAuth2AccessTokenGenerator();
         OAuth2RefreshTokenGenerator refreshTokenGenerator = new OAuth2RefreshTokenGenerator();
         return new DelegatingOAuth2TokenGenerator(
-                jwtGenerator, accessTokenGenerator, refreshTokenGenerator);
+                jwtGenerator,
+                accessTokenGenerator,
+                refreshTokenGenerator);
+    }
+
+    @Bean
+    public OAuth2TokenCustomizer<JwtEncodingContext> combinedCustomizer(
+            List<OAuth2TokenCustomizer<JwtEncodingContext>> customizers
+    ) {
+        return context -> {
+            for (OAuth2TokenCustomizer<JwtEncodingContext> customizer : customizers) {
+                customizer.customize(context);
+            }
+        };
     }
 
 }

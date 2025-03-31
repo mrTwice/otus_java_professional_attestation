@@ -1,4 +1,4 @@
-package ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.external.users.client;
+package ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.integrations.users.client;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -6,9 +6,9 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
-import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.external.config.OAuth2AccessTokenManager;
-import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.external.exceptions.IntegrationException;
-import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.external.users.dto.UserPrincipalDTO;
+import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.integrations.config.OAuth2AccessTokenManager;
+import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.integrations.exceptions.IntegrationException;
+import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.integrations.users.dto.UserPrincipalDTO;
 
 import java.util.List;
 import java.util.UUID;
@@ -16,12 +16,12 @@ import java.util.UUID;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class UserClient {
+public class UserProfileClient {
 
+    private static final String BASE_PATH = "/api/v1/users";
     private final RestClient userServiceClient;
     private final OAuth2AccessTokenManager userServiceAccessTokenManager;
 
-    private static final String BASE_PATH = "/api/v1/users";
 
     public UserPrincipalDTO findByUsername(String username) {
         return userServiceClient.get()

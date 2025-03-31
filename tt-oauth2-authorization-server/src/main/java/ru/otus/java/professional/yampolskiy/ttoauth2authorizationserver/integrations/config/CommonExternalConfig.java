@@ -1,11 +1,11 @@
-package ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.external.config;
+package ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.integrations.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestClient;
-import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.external.users.config.UserServiceProperties;
+import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.integrations.users.config.UserServiceProperties;
 
 @Configuration
 @EnableConfigurationProperties(UserServiceProperties.class)

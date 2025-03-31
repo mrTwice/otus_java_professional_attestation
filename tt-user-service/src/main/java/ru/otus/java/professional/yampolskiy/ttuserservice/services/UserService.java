@@ -30,13 +30,13 @@ public interface UserService {
 
     void deleteUser(UUID userId);
 
-    User getUserByOidcSubject(UUID oidcSubject);
+    User getUserByOidcSubject(String oidcSubject);
 
-    boolean existsByOidcSubject(UUID oidcSubject);
+    boolean existsByOidcSubject(String oidcSubject);
 
     List<User> getUsersByOidcProvider(String oidcProvider);
 
-    User getUserByOidcSubjectAndProvider(UUID subject, String provider);
+    User getUserByOidcSubjectAndProvider(String subject, String provider);
 
     void updatePasswordHash(UUID userId, String newPasswordHash);
 }

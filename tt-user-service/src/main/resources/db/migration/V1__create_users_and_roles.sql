@@ -17,7 +17,7 @@ CREATE TABLE users
 
     -- OIDC (если пользователь входит через Google, Keycloak и т. д.)
     oidc_provider  VARCHAR(50) DEFAULT NULL,     -- Google, GitHub, Keycloak
-    oidc_subject   UUID UNIQUE         NOT NULL, -- Уникальный ID пользователя в OIDC
+    oidc_subject   VARCHAR(50) DEFAULT NULL, -- Уникальный ID пользователя в OIDC
 
     created_at     TIMESTAMP   DEFAULT CURRENT_TIMESTAMP,
     updated_at     TIMESTAMP   DEFAULT CURRENT_TIMESTAMP,

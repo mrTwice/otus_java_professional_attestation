@@ -2,12 +2,13 @@ package ru.otus.java.professional.yampolskiy.ttuserservice.dtos.user;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.LocalDate;
 import java.util.Map;
-import java.util.Set;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -15,6 +16,10 @@ import java.util.Set;
 @NoArgsConstructor
 @Builder
 public class UserCreateDTO {
+
+    @NotNull
+    private UUID id;
+
     @NotBlank
     @Size(min = 3, max = 50)
     private String username;
@@ -26,6 +31,18 @@ public class UserCreateDTO {
     @Email
     private String email;
 
+    @NotBlank
+    private String oidcProvider;
+
+    @NotNull
+    private String oidcSubject;
+
+    private boolean emailVerified;
+    private boolean active;
+    private boolean locked;
+    private boolean phoneNumberVerified;
+
+    // optional user profile
     private String firstName;
     private String middleName;
     private String lastName;

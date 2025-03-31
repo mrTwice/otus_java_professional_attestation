@@ -1,5 +1,6 @@
 package ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.oidc.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
@@ -9,12 +10,15 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Toke
 import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.oidc.service.OidcUserInfoService;
 
 @Configuration
+@Slf4j
 public class IdTokenCustomizerConfig {
     @Bean
     public OAuth2TokenCustomizer<JwtEncodingContext> idTokenCustomizer(
             OidcUserInfoService userInfoService) {
         return (context) -> {
             if (OidcParameterNames.ID_TOKEN.equals(context.getTokenType().getValue())) {
+                log.info("🎯 Customizing idtoken for client: {}", context.getRegisteredClient().getClientId());
+
                 // TODO: Добавить условную логику — кастомизировать клеймы в зависимости от клиента, grant_type, scope и т.д.
                 // Пример: пропустить ID токен, если он не из authorization_code flow
                 // TODO: Подгрузка дополнительных данных из внешних микросервисов (например, профиля, ролей, статуса)

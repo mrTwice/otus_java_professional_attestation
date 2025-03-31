@@ -1,10 +1,13 @@
-package ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.external.dto;
+package ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.infrastructure.dto;
+
 
 import java.time.LocalDateTime;
+import java.util.List;
 
-public class ErrorDTO {
+public class ValidationEmailErrorDTO {
     private String code;
     private String message;
+    private List<ValidationEmailPartErrorDTO> errors;
     private LocalDateTime dateTime;
 
     public String getCode() {
@@ -23,6 +26,14 @@ public class ErrorDTO {
         this.message = message;
     }
 
+    public List<ValidationEmailPartErrorDTO> getErrors() {
+        return errors;
+    }
+
+    public void setErrors(List<ValidationEmailPartErrorDTO> errors) {
+        this.errors = errors;
+    }
+
     public LocalDateTime getDateTime() {
         return dateTime;
     }
@@ -31,10 +42,10 @@ public class ErrorDTO {
         this.dateTime = dateTime;
     }
 
-    public ErrorDTO(String code, String message) {
+    public ValidationEmailErrorDTO(String code, String message, List<ValidationEmailPartErrorDTO> errors) {
         this.code = code;
         this.message = message;
+        this.errors = errors;
         this.dateTime = LocalDateTime.now();
     }
 }
-

@@ -23,8 +23,8 @@ public class ValidatorConfigurations {
     }
 
     @Bean
-    public Validator<User> commonUserValidator(UserRepository userRepository) {
-        return new CommonUserValidator(userRepository);
+    public Validator<User> commonUserValidator() {
+        return new CommonUserValidator();
     }
 
     @Bean

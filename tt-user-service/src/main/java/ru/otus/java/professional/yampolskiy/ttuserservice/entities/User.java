@@ -116,7 +116,7 @@ public class User {
     private String oidcProvider;
 
     @Column(name = "oidc_subject", unique = true, nullable = false)
-    private UUID oidcSubject;
+    private String oidcSubject;
 
     @Column(name = "updated_at_oidc")
     private Instant updatedAtOidc;

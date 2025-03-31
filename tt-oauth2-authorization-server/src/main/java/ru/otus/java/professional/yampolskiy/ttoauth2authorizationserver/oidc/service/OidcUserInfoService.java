@@ -6,9 +6,9 @@ import org.springframework.security.authentication.InternalAuthenticationService
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.stereotype.Service;
-import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.external.exceptions.IntegrationException;
-import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.external.users.client.UserClient;
-import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.external.users.dto.UserPrincipalDTO;
+import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.integrations.exceptions.IntegrationException;
+import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.integrations.users.client.UserProfileClient;
+import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.integrations.users.dto.UserPrincipalDTO;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,11 +21,12 @@ import java.util.stream.Stream;
 @Slf4j
 public class OidcUserInfoService {
 
-    private final UserClient userClient;
+    //TODO подумать о переносе сервиса в external/users
+    private final UserProfileClient userProfileClient;
 
     public OidcUserInfo loadUser(String username) {
         try {
-            UserPrincipalDTO user = userClient.findByUsername(username);
+            UserPrincipalDTO user = userProfileClient.findByUsername(username);
 
             Map<String, Object> claims = new HashMap<>();
             claims.put("sub", user.getOidcSubject().toString());

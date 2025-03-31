@@ -1,4 +1,4 @@
-package ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.external.users.config;
+package ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.integrations.users.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -14,4 +14,6 @@ public class UserServiceConfig {
                 .baseUrl(baseUri)
                 .build();
     }
+
+
 }

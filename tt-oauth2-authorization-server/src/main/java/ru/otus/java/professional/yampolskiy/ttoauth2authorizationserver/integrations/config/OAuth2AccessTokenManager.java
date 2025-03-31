@@ -1,4 +1,4 @@
-package ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.external.config;
+package ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.integrations.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.RequiredArgsConstructor;
@@ -8,7 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
-import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.external.exceptions.IntegrationException;
+import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.integrations.exceptions.IntegrationException;
 
 import java.time.Instant;
 

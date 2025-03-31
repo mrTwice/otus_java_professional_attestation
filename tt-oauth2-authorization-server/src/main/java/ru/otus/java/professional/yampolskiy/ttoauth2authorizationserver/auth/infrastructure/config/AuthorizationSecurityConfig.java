@@ -113,7 +113,13 @@ public class AuthorizationSecurityConfig {
     ) throws Exception {
         http
                 .authenticationProvider(userAuthenticationProvider)
-                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/v1/auth/register").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/api/v1/auth/register")
+                )
                 .formLogin(Customizer.withDefaults())
                 .requestCache(requestCache -> requestCache
                         .requestCache(new HttpSessionRequestCache())

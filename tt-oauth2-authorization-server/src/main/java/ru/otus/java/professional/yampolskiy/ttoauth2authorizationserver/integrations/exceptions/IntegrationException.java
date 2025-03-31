@@ -1,4 +1,4 @@
-package ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.external.exceptions;
+package ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.integrations.exceptions;
 
 public class IntegrationException extends RuntimeException {
     private final String code;

@@ -29,6 +29,7 @@ public class RoleServiceImpl implements RoleService {
     public Role createRole(Role role) {
         commonRoleValidator.validate(role);
         roleUniqueValidator.validate(role);
+        //TODO надо бы вставлять пермиссии
         return roleRepository.save(role);
     }
 

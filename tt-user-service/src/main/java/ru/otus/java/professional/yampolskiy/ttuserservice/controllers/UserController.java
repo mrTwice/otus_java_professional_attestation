@@ -23,14 +23,6 @@ public class UserController {
     private final UserService userService;
     private final UserMapper userMapper;
 
-    @PostMapping
-    @PreAuthorize("@accessPolicy.canCreateUsers(authentication)")
-    public ResponseEntity<UserResponseDTO> createUser(@RequestBody @Valid UserCreateDTO dto) {
-        User user = userMapper.toEntityFromUserCreateDTO(dto);
-        User created = userService.createUser(user);
-        return new ResponseEntity<>(userMapper.toResponseDTOFromEntity(created), HttpStatus.CREATED);
-    }
-
     @GetMapping("/{id}")
     @PreAuthorize("@accessPolicy.canAccessUser(authentication, #id)")
     public ResponseEntity<UserResponseDTO> getUser(@PathVariable UUID id) {
@@ -110,14 +102,14 @@ public class UserController {
 
     @GetMapping("/by-subject")
     @PreAuthorize("@accessPolicy.canViewUsers(authentication)")
-    public ResponseEntity<UserPrincipalDTO> getUserBySubject(@RequestParam UUID subject) {
+    public ResponseEntity<UserPrincipalDTO> getUserBySubject(@RequestParam String subject) {
         User user = userService.getUserByOidcSubject(subject);
         return ResponseEntity.ok(userMapper.toPrincipalDTO(user));
     }
 
     @GetMapping("/exists")
     @PreAuthorize("@accessPolicy.canViewUsers(authentication)")
-    public ResponseEntity<Boolean> exists(@RequestParam UUID subject) {
+    public ResponseEntity<Boolean> exists(@RequestParam String subject) {
         return ResponseEntity.ok(userService.existsByOidcSubject(subject));
     }
 
@@ -139,7 +131,7 @@ public class UserController {
 
     @GetMapping("/auth/profile/oidc")
     @PreAuthorize("@accessPolicy.canViewUsers(authentication)")
-    public ResponseEntity<UserPrincipalDTO> getPrincipalByOidcAndProvider(@RequestParam String provider, @RequestParam UUID subject) {
+    public ResponseEntity<UserPrincipalDTO> getPrincipalByOidcAndProvider(@RequestParam String provider, @RequestParam String subject) {
         User user = userService.getUserByOidcSubjectAndProvider(subject, provider);
         return ResponseEntity.ok(userMapper.toPrincipalDTO(user));
     }

@@ -11,6 +11,7 @@ import ru.otus.java.professional.yampolskiy.ttuserservice.validators.Validator;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -29,7 +30,14 @@ public class UserServiceImpl implements UserService {
         commonUserValidator.validate(user);
         userEmailValidator.validate(user.getEmail());
         userUniqueValidator.validate(user);
+
+        if (user.getRoles() == null || user.getRoles().isEmpty()) {
+            Role defaultRole = roleService.getRoleByName("USER");
+            user.setRoles(Set.of(defaultRole));
+        }
+
         user.setRoles(roleService.validateRoles(user.getRoles()));
+
         return userRepository.save(user);
     }
 
@@ -103,13 +111,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserByOidcSubject(UUID oidcSubject) {
+    public User getUserByOidcSubject(String oidcSubject) {
         return userRepository.findByOidcSubject(oidcSubject)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with OIDC subject: " + oidcSubject));
     }
 
     @Override
-    public boolean existsByOidcSubject(UUID oidcSubject) {
+    public boolean existsByOidcSubject(String oidcSubject) {
         return userRepository.existsByOidcSubject(oidcSubject);
     }
 
@@ -119,7 +127,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserByOidcSubjectAndProvider(UUID subject, String provider) {
+    public User getUserByOidcSubjectAndProvider(String subject, String provider) {
         return userRepository.findByOidcSubjectAndOidcProvider(subject, provider)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "User not found with OIDC provider " + provider + " and subject " + subject));

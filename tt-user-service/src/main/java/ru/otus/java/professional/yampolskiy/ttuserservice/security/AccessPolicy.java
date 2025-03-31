@@ -1,13 +1,19 @@
 package ru.otus.java.professional.yampolskiy.ttuserservice.security;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Component("accessPolicy")
 public class AccessPolicy {
 
@@ -143,6 +149,19 @@ public class AccessPolicy {
         }
 
         return null;
+    }
+
+    public boolean isInternalClient(Authentication authentication) {
+        log.info("🔐 Проверка internal клиента: {}", authentication);
+
+        if (authentication instanceof JwtAuthenticationToken jwtAuth) {
+            Jwt jwt = jwtAuth.getToken();
+            String clientId = jwt.getClaimAsString("client_id");
+            log.info("🔐 client_id из JWT: {}", clientId);
+            return "internal-service-client".equals(clientId);
+        }
+
+        return false;
     }
 }
 

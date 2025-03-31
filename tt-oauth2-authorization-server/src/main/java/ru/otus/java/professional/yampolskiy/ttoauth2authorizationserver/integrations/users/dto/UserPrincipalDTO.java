@@ -1,4 +1,4 @@
-package ru.otus.java.professional.yampolskiy.ttuserservice.dtos.user;
+package ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.integrations.users.dto;
 
 import lombok.*;
 

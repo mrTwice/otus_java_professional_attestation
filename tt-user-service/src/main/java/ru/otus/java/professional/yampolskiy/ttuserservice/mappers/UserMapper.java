@@ -1,8 +1,6 @@
 package ru.otus.java.professional.yampolskiy.ttuserservice.mappers;
 
 import org.mapstruct.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import ru.otus.java.professional.yampolskiy.ttuserservice.dtos.user.*;
 import ru.otus.java.professional.yampolskiy.ttuserservice.entities.Role;
 import ru.otus.java.professional.yampolskiy.ttuserservice.entities.User;
@@ -18,24 +16,17 @@ import java.util.stream.Collectors;
         uses = RoleMapper.class,
         unmappedTargetPolicy = ReportingPolicy.WARN
 )
-public abstract class UserMapper {
-
-    @Autowired
-    protected PasswordEncoder passwordEncoder;
+public interface UserMapper {
 
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "deletedAt", ignore = true)
     @Mapping(target = "roles", ignore = true)
-    @Mapping(target = "password", qualifiedByName = "encodePassword")
-    @Mapping(target = "emailVerified", constant = "false")
-    @Mapping(target = "active", constant = "true")
-    @Mapping(target = "locked", constant = "false")
     @Mapping(target = "updatedAtOidc", ignore = true)
-    public abstract User toEntityFromUserCreateDTO(UserCreateDTO dto);
+    User toEntityFromUserCreateDTO(UserCreateDTO dto);
 
     @Mapping(target = "roles", qualifiedByName = "rolesToStringSet")
-    public abstract UserResponseDTO toResponseDTOFromEntity(User entity);
+    UserResponseDTO toResponseDTOFromEntity(User entity);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "username", ignore = true)
@@ -45,7 +36,7 @@ public abstract class UserMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "deletedAt", ignore = true)
-    public abstract void updateEntityFromAdminDTO(UserAdminUpdateDTO dto, @MappingTarget User entity);
+    void updateEntityFromAdminDTO(UserAdminUpdateDTO dto, @MappingTarget User entity);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "password", ignore = true)
@@ -53,19 +44,19 @@ public abstract class UserMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "deletedAt", ignore = true)
-    public abstract void updateEntityFromUpdateDTO(UserUpdateDTO dto, @MappingTarget User entity);
+    void updateEntityFromUpdateDTO(UserUpdateDTO dto, @MappingTarget User entity);
 
     @Mapping(target = "roles", expression = "java(mapRoles(user))")
     @Mapping(target = "permissions", expression = "java(mapPermissions(user))")
-    public abstract UserPrincipalDTO toPrincipalDTO(User user);
+    UserPrincipalDTO toPrincipalDTO(User user);
 
-    protected Set<String> mapRoles(User user) {
+    default Set<String> mapRoles(User user) {
         return user.getRoles().stream()
                 .map(Role::getName)
                 .collect(Collectors.toSet());
     }
 
-    protected Set<String> mapPermissions(User user) {
+    default Set<String> mapPermissions(User user) {
         return user.getRoles().stream()
                 .flatMap(role -> role.getPermissions().stream())
                 .map(Permission::getName)
@@ -73,25 +64,20 @@ public abstract class UserMapper {
     }
 
     @Named("rolesToStringSet")
-    protected Set<String> mapRoles(Set<Role> roles) {
+    default Set<String> mapRoles(Set<Role> roles) {
         return roles != null
                 ? roles.stream().map(Role::getName).collect(Collectors.toSet())
                 : Collections.emptySet();
     }
 
     @Named("stringSetToRoles")
-    protected Set<Role> mapRoleNamesToRoles(Set<String> roleNames) {
+    default Set<Role> mapRoleNamesToRoles(Set<String> roleNames) {
         if (roleNames == null || roleNames.isEmpty()) {
             return Collections.emptySet();
         }
         return roleNames.stream()
                 .map(name -> Role.builder().name(name).build())
                 .collect(Collectors.toSet());
-    }
-
-    @Named("encodePassword")
-    protected String encodePassword(String password) {
-        return password != null ? passwordEncoder.encode(password) : null;
     }
 }
 
