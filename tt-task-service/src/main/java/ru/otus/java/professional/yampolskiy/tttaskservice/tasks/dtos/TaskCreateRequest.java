@@ -2,10 +2,14 @@ package ru.otus.java.professional.yampolskiy.tttaskservice.tasks.dtos;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.*;
 
 import java.time.Instant;
 import java.util.UUID;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class TaskCreateRequest {
     @NotBlank
     private String title;

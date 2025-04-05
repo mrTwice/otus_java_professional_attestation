@@ -1,7 +1,13 @@
 package ru.otus.java.professional.yampolskiy.tttaskservice.taskstatuses.dtos;
 
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class TaskStatusCreateRequest {
 
     @NotBlank

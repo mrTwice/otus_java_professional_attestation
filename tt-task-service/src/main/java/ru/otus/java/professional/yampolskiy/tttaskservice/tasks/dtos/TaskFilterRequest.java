@@ -4,14 +4,18 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.util.UUID;
+
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TaskShortResponse {
-    private UUID id;
-    private String title;
+public class TaskFilterRequest {
+    private UUID creatorId;
+    private UUID assigneeId;
     private String statusCode;
     private String typeCode;
+    private Instant createdAfter;
+    private Instant createdBefore;
 }

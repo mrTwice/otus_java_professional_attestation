@@ -1,6 +1,7 @@
 package ru.otus.java.professional.yampolskiy.tttaskservice.tasks.entities;
 
 import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import java.time.Instant;
@@ -10,6 +11,12 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "tasks")
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@EqualsAndHashCode
+@ToString
 public class Task {
 
     @Id

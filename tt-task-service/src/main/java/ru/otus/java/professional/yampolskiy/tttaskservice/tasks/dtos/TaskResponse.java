@@ -1,11 +1,17 @@
 package ru.otus.java.professional.yampolskiy.tttaskservice.tasks.dtos;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.otus.java.professional.yampolskiy.tttaskservice.tasks.entities.Task;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class TaskResponse {
     private UUID id;
     private String title;
