@@ -1,7 +1,5 @@
 package ru.otus.java.professional.yampolskiy.tttaskservice.tasks.entities;
 
-package your.package.taskpriorities.entities;
-
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
