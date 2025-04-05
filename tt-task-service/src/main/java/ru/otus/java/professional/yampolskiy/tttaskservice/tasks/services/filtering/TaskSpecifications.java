@@ -1,12 +1,24 @@
 package ru.otus.java.professional.yampolskiy.tttaskservice.tasks.services.filtering;
 
 import org.springframework.data.jpa.domain.Specification;
+import ru.otus.java.professional.yampolskiy.tttaskservice.tasks.dtos.task.TaskFilterRequest;
 import ru.otus.java.professional.yampolskiy.tttaskservice.tasks.entities.Task;
 
 import java.time.Instant;
 import java.util.UUID;
 
 public class TaskSpecifications {
+
+    public static Specification<Task> fromFilter(TaskFilterRequest filter) {
+        return Specification.where(isNotDeleted())
+                .and(hasCreator(filter.getCreatorId()))
+                .and(hasAssignee(filter.getAssigneeId()))
+                .and(hasStatus(filter.getStatusCode()))
+                .and(hasType(filter.getTypeCode()))
+                .and(hasPriority(filter.getPriorityId()))
+                .and(createdAfter(filter.getCreatedAfter()))
+                .and(createdBefore(filter.getCreatedBefore()));
+    }
 
     public static Specification<Task> hasCreator(UUID creatorId) {
         return (root, query, cb) -> creatorId == null ? null : cb.equal(root.get("creatorId"), creatorId);
@@ -36,5 +48,9 @@ public class TaskSpecifications {
 
     public static Specification<Task> isNotDeleted() {
         return (root, query, cb) -> cb.isNull(root.get("deletedAt"));
+    }
+
+    public static Specification<Task> hasPriority(UUID priorityId) {
+        return (root, query, cb) -> priorityId == null ? null : cb.equal(root.get("priority").get("id"), priorityId);
     }
 }

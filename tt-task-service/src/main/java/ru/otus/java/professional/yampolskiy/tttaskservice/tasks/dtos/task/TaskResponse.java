@@ -1,4 +1,4 @@
-package ru.otus.java.professional.yampolskiy.tttaskservice.tasks.dtos;
+package ru.otus.java.professional.yampolskiy.tttaskservice.tasks.dtos.task;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

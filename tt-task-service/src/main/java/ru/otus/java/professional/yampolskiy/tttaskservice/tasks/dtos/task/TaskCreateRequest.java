@@ -1,10 +1,8 @@
-package ru.otus.java.professional.yampolskiy.tttaskservice.tasks.dtos;
+package ru.otus.java.professional.yampolskiy.tttaskservice.tasks.dtos.task;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -12,7 +10,7 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TaskUpdateRequest {
+public class TaskCreateRequest {
     @NotBlank
     private String title;
 
@@ -24,9 +22,11 @@ public class TaskUpdateRequest {
     @NotNull
     private UUID statusId;
 
+    @NotNull
+    private UUID creatorId;
+
     private UUID assigneeId;
     private Instant dueDate;
-    private Instant completedAt;
 
     private UUID parentId;
     private UUID queueId;

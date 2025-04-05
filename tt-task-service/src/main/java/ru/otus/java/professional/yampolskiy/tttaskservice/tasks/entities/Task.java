@@ -69,6 +69,10 @@ public class Task {
     @JoinColumn(name = "parent_id")
     private Task parent;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "priority_id")
+    private TaskPriority priority;
+
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Task> subtasks = new ArrayList<>();
 
