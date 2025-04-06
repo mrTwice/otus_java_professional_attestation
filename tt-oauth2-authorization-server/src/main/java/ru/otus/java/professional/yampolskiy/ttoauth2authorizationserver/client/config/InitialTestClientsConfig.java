@@ -22,43 +22,6 @@ public class InitialTestClientsConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InitialTestClientsConfig.class);
 
-//    @Bean
-//    @DependsOn("entityManagerFactory")
-//    public CommandLineRunner registerTestClient(
-//            SecurityRegisteredClientRepository registeredClientRepository,
-//            PasswordEncoder passwordEncoder,
-//            TokenSettings tokenSettings
-//    ) {
-//        return args -> {
-//            if (registeredClientRepository.findByClientId("test-client") == null) {
-//                LOGGER.info("📦 Registering test-client");
-//
-//                RegisteredClient testClient = RegisteredClient.withId(UUID.randomUUID().toString())
-//                        .clientId("test-client")
-//                        .clientSecret(passwordEncoder.encode("test-secret"))
-//                        .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-//                        .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-//                        //.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-//                        .redirectUri("http://127.0.0.1:8080/login/oauth2/code/test-client")
-//                        .scope("openid")
-//                        .scope("profile")
-//                        .scope("email")
-//                        .scope("read")
-//                        .scope("write")
-//                        .scope("offline_access")
-//                        .scope("user:view")
-//                        .clientSettings(ClientSettings.builder()
-//                                .requireAuthorizationConsent(true)
-//                                .build())
-//                        .tokenSettings(tokenSettings)
-//                        .build();
-//
-//                registeredClientRepository.save(testClient);
-//                LOGGER.info("✅ test-client registered successfully");
-//            }
-//        };
-//    }
-
     @Bean
     @DependsOn("entityManagerFactory")
     public CommandLineRunner registerTestClient(

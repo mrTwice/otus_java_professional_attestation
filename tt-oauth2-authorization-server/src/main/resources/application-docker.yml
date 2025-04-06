@@ -42,3 +42,4 @@ logging:
     org.springframework.security.oauth2: DEBUG
     org.springframework.security.oauth2.server.authorization.web.OAuth2AuthorizationEndpointFilter: DEBUG
     org.springframework.security.oauth2.server.authorization: DEBUG
+    org.springdoc: DEBUG

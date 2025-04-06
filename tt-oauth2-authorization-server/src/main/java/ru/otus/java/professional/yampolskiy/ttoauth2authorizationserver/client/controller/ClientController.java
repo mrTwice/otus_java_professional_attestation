@@ -9,8 +9,8 @@ import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.client.s
 
 import java.util.List;
 
-@RestController
-@RequestMapping("/api/v1/clients")
+//@RestController
+//@RequestMapping("/api/v1/clients")
 @RequiredArgsConstructor
 public class ClientController {
 

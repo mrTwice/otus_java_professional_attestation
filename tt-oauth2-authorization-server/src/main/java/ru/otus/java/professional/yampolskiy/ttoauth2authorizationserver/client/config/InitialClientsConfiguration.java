@@ -14,6 +14,7 @@ import org.springframework.security.oauth2.server.authorization.settings.ClientS
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.client.service.SecurityRegisteredClientRepository;
 
+import java.util.Set;
 import java.util.UUID;
 
 @Configuration
@@ -50,6 +51,57 @@ public class InitialClientsConfiguration {
 
                 registeredClientRepository.save(internalClient);
                 LOGGER.info("✅ internal-service-client registered");
+            }
+        };
+    }
+
+    @Bean
+    @DependsOn("entityManagerFactory")
+    public CommandLineRunner registerSwaggerClient(
+            SecurityRegisteredClientRepository registeredClientRepository,
+            PasswordEncoder passwordEncoder,
+            TokenSettings tokenSettings
+    ) {
+        return args -> {
+            if (registeredClientRepository.findByClientId("swagger-client") == null) {
+                LOGGER.info("📚 Registering swagger-client...");
+
+                Set<String> swaggerScopes = Set.of(
+                        // OIDC scopes
+                        "openid", "profile",
+
+                        // Task access
+                        "task:create", "task:view", "task:update", "task:delete", "task:assign",
+
+                        // Comment access
+                        "comment:create", "comment:view", "comment:update", "comment:delete",
+
+                        // Attachment access
+                        "attachment:create", "attachment:view", "attachment:update", "attachment:delete",
+
+                        // Directory access
+                        "task-type:view", "task-status:view", "task-priority:view",
+
+                        // User info
+                        "user:view"
+                );
+
+                RegisteredClient.Builder builder = RegisteredClient.withId(UUID.randomUUID().toString())
+                        .clientId("swagger-client")
+                        .clientSecret(passwordEncoder.encode("swagger-secret"))
+                        .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                        .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
+                        .redirectUri("http://localhost:8081/swagger-ui/oauth2-redirect.html")
+                        .clientSettings(ClientSettings.builder()
+                                .requireAuthorizationConsent(true)
+                                .build())
+                        .tokenSettings(tokenSettings);
+
+                // ✅ Добавляем реальные scopes
+                swaggerScopes.forEach(builder::scope);
+
+                registeredClientRepository.save(builder.build());
+                LOGGER.info("✅ swagger-client registered successfully");
             }
         };
     }

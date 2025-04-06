@@ -9,8 +9,8 @@ import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.auth.cor
 
 import java.util.List;
 
-@RestController
-@RequestMapping("/api/v1/authorizations")
+//@RestController
+//@RequestMapping("/api/v1/authorizations")
 @RequiredArgsConstructor
 public class AuthorizationController {
 

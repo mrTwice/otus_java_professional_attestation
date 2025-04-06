@@ -44,4 +44,5 @@ logging:
     #org.hibernate.SQL: DEBUG
     #org.hibernate.type.descriptor.sql.BasicBinder: TRACE
     org.springframework.security.oauth2.server.authorization: DEBUG
+    org.springdoc: DEBUG
 

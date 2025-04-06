@@ -1,5 +1,7 @@
 package ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.auth.infrastructure.config;
 
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.info.Info;
 import jakarta.servlet.Filter;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -29,7 +31,13 @@ import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.auth.inf
 import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.auth.infrastructure.logging.TokenEndpointLoggingFilter;
 import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.auth.core.service.DatabaseAuthorizationService;
 
-
+@OpenAPIDefinition(
+        info = @Info(
+                title = "TT Auth Server",
+                version = "1.0",
+                description = "Authorization API"
+        )
+)
 @Configuration
 public class AuthorizationSecurityConfig {
 
@@ -115,6 +123,11 @@ public class AuthorizationSecurityConfig {
                 .authenticationProvider(userAuthenticationProvider)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/auth/register").permitAll()
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/swagger-ui.html",
+                                "/swagger-ui/**"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .csrf(csrf -> csrf
