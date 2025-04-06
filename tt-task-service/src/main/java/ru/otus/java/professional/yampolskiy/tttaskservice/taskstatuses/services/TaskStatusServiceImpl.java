@@ -89,7 +89,7 @@ public class TaskStatusServiceImpl implements TaskStatusService {
     @Override
     public void delete(UUID id) {
         TaskStatus status = findById(id);
-        // Если будет soft delete — добавим deletedAt
+        // TODO  добавить soft delete
         taskStatusRepository.delete(status);
     }
 }

@@ -29,7 +29,13 @@ public class RolePermissionInitializer implements CommandLineRunner {
         Map<String, Set<String>> rolePermissions = Map.of(
                 "ADMIN", Set.of(
                         "task:create", "task:view", "task:update", "task:delete", "task:assign",
-                        "project:view", "project:manage",
+
+                        "comment:create", "comment:view", "comment:update", "comment:delete",
+                        "attachment:create", "attachment:view", "attachment:update", "attachment:delete",
+
+                        "task-type:create", "task-type:view", "task-type:update", "task-type:delete",
+                        "task-status:create", "task-status:view", "task-status:update", "task-status:delete",
+                        "task-priority:create", "task-priority:view", "task-priority:update", "task-priority:delete",
 
                         "user:view", "user:update", "user:delete", "user:assign-roles", "user:manage",
 
@@ -39,7 +45,13 @@ public class RolePermissionInitializer implements CommandLineRunner {
 
                 "MANAGER", Set.of(
                         "task:create", "task:view", "task:update", "task:delete", "task:assign",
-                        "project:view", "project:manage",
+
+                        "comment:create", "comment:view", "comment:update", "comment:delete",
+                        "attachment:create", "attachment:view", "attachment:update", "attachment:delete",
+
+                        "task-type:view", "task-type:update",
+                        "task-status:view", "task-status:update",
+                        "task-priority:view", "task-priority:update",
 
                         "user:view", "user:update",
 
@@ -48,11 +60,27 @@ public class RolePermissionInitializer implements CommandLineRunner {
 
                 "USER", Set.of(
                         "task:create", "task:view", "task:update",
+
+                        "comment:create", "comment:view",
+                        "attachment:create", "attachment:view",
+
+                        "task-type:view",
+                        "task-status:view",
+                        "task-priority:view",
+
                         "user:view"
                 ),
 
                 "GUEST", Set.of(
-                        "task:view", "project:view"
+                        "task:view",
+                        "comment:view",
+                        "attachment:view",
+
+                        "task-type:view",
+                        "task-status:view",
+                        "task-priority:view",
+
+                        "project:view"
                 )
         );
 

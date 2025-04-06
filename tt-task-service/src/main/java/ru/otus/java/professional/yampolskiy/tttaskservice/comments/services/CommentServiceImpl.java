@@ -13,7 +13,7 @@ import ru.otus.java.professional.yampolskiy.tttaskservice.common.DomainValidator
 import java.util.List;
 import java.util.UUID;
 
-@Service
+@Service("commentService")
 @RequiredArgsConstructor
 @Transactional
 public class CommentServiceImpl implements CommentService {
