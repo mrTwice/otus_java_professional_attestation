@@ -33,7 +33,6 @@ public class TaskResponse {
     private Instant updatedAt;
 
     private UUID parentId;
-    private UUID queueId;
 
     private List<Task> subtasks; // или List<UUID> если без вложенности
 }

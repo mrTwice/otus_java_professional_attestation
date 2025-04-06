@@ -8,7 +8,14 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface TaskPriorityRepository extends JpaRepository<TaskPriority, UUID> {
-    Optional<TaskPriority> findByCode(String code);
-    List<TaskPriority> findAllByOrderBySortOrderAsc();
-    List<TaskPriority> findByIsDefaultTrue();
+
+    Optional<TaskPriority> findByCodeAndDeletedAtIsNull(String code);
+
+    Optional<TaskPriority> findByIdAndDeletedAtIsNull(UUID id);
+
+    List<TaskPriority> findAllByDeletedAtIsNull();
+
+    List<TaskPriority> findAllByDeletedAtIsNullOrderBySortOrderAsc();
+
+    List<TaskPriority> findByIsDefaultTrueAndDeletedAtIsNull();
 }

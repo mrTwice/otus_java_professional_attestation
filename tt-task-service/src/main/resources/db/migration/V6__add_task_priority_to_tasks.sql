@@ -1,7 +1,5 @@
 ALTER TABLE tasks
     ADD COLUMN priority_id UUID;
-ALTER TABLE tasks
-    ADD CONSTRAINT fk_task_priority FOREIGN KEY (priority_id) REFERENCES task_priorities (id);
 CREATE TABLE task_priorities
 (
     id          UUID PRIMARY KEY      DEFAULT uuid_generate_v4(),
@@ -14,3 +12,7 @@ CREATE TABLE task_priorities
     created_at  TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at  TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+ALTER TABLE tasks
+    ADD CONSTRAINT fk_task_priority FOREIGN KEY (priority_id) REFERENCES task_priorities (id);
+ALTER TABLE tasks
+    ADD COLUMN priority_code VARCHAR(255) NOT NULL;

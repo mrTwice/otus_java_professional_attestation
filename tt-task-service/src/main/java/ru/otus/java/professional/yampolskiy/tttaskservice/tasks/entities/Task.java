@@ -65,14 +65,18 @@ public class Task {
     @Column(name = "updated_at")
     private Instant updatedAt;
 
+    @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private Task parent;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "priority_id")
-    private TaskPriority priority;
+    @Column(name = "priority_id")
+    private UUID priorityId;
 
+    @Column(name = "priority_code", nullable = false)
+    private String priorityCode;
+
+    @ToString.Exclude
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Task> subtasks = new ArrayList<>();
 

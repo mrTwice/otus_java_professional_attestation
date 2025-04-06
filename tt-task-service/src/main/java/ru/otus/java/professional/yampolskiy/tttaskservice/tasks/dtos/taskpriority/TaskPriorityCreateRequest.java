@@ -20,6 +20,4 @@ public class TaskPriorityCreateRequest {
     private Integer sortOrder;
     private String color;
     private boolean isDefault;
-
-    // getters and setters
 }

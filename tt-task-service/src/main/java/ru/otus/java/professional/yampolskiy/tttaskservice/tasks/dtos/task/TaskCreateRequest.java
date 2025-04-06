@@ -29,5 +29,4 @@ public class TaskCreateRequest {
     private Instant dueDate;
 
     private UUID parentId;
-    private UUID queueId;
 }

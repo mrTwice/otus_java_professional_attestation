@@ -28,6 +28,5 @@ public class TaskUpdateRequest {
     private Instant dueDate;
     private Instant completedAt;
 
-    private UUID parentId;
-    private UUID queueId;
+    private UUID parentId; //TODO запрет менять parentId на самого себя
 }

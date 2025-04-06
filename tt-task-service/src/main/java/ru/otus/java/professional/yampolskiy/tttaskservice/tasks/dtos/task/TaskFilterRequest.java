@@ -12,6 +12,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TaskFilterRequest {
+    //TODO добавить что-то для сортировки
     private UUID creatorId;
     private UUID assigneeId;
     private String statusCode;

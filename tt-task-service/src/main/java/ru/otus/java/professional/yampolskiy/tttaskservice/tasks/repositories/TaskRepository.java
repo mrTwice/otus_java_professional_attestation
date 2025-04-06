@@ -18,4 +18,5 @@ public interface TaskRepository extends JpaRepository<Task, UUID>, JpaSpecificat
     List<Task> findByAssigneeIdAndDeletedAtIsNull(UUID assigneeId);
 
     List<Task> findByCreatorIdAndDeletedAtIsNull(UUID creatorId);
+
 }
