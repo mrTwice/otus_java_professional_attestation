@@ -2,6 +2,7 @@ package ru.otus.java.professional.yampolskiy.tttaskservice.comments.validators;
 
 
 import ru.otus.java.professional.yampolskiy.tttaskservice.comments.entities.Comment;
+import ru.otus.java.professional.yampolskiy.tttaskservice.comments.exceptions.InvalidCommentException;
 import ru.otus.java.professional.yampolskiy.tttaskservice.common.DomainValidator;
 
 public class CommentValidator implements DomainValidator<Comment> {
@@ -15,19 +16,20 @@ public class CommentValidator implements DomainValidator<Comment> {
     public void validateForUpdate(Comment existing, Comment updated) {
         validateContent(updated);
         if (!existing.getAuthorId().equals(updated.getAuthorId())) {
-            throw new IllegalArgumentException("Author of comment cannot be changed");
+            throw new InvalidCommentException("Author of comment cannot be changed");
         }
         if (!existing.getTaskId().equals(updated.getTaskId())) {
-            throw new IllegalArgumentException("Task ID of comment cannot be changed");
+            throw new InvalidCommentException("Task ID of comment cannot be changed");
         }
     }
 
     private void validateContent(Comment comment) {
         if (comment.getContent() == null || comment.getContent().isBlank()) {
-            throw new IllegalArgumentException("Comment content must not be blank");
+            throw new InvalidCommentException("Comment content must not be blank");
         }
         if (comment.getContent().length() > 5000) {
-            throw new IllegalArgumentException("Comment is too long (max 5000 characters)");
+            throw new InvalidCommentException("Comment is too long (max 5000 characters)");
         }
     }
 }
+

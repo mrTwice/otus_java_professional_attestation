@@ -31,4 +31,4 @@ springdoc:
       client-id: swagger-client-user-service
       client-secret: swagger-secret
       use-basic-authentication-with-access-code-grant: true
-      scopes: openid,profile,user:view,user:manage,user:delete
+      scopes: openid,profile,offline_access

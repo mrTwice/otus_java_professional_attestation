@@ -2,6 +2,8 @@ package ru.otus.java.professional.yampolskiy.tttaskservice.tasks.validators;
 
 import ru.otus.java.professional.yampolskiy.tttaskservice.common.DomainValidator;
 import ru.otus.java.professional.yampolskiy.tttaskservice.tasks.entities.Task;
+import ru.otus.java.professional.yampolskiy.tttaskservice.tasks.exceptions.task.InvalidTaskException;
+import ru.otus.java.professional.yampolskiy.tttaskservice.tasks.exceptions.task.TaskCompletedUpdateException;
 
 import java.time.Instant;
 
@@ -17,7 +19,7 @@ public class TaskValidator implements DomainValidator<Task> {
     @Override
     public void validateForUpdate(Task existingTask, Task updatedTask) {
         if (existingTask.getCompletedAt() != null) {
-            throw new IllegalStateException("Cannot update a completed task");
+            throw new TaskCompletedUpdateException(existingTask.getId());
         }
 
         validateRequiredFields(updatedTask);
@@ -27,34 +29,35 @@ public class TaskValidator implements DomainValidator<Task> {
 
     private void validateRequiredFields(Task task) {
         if (task.getTitle() == null || task.getTitle().isBlank()) {
-            throw new IllegalArgumentException("Title is required");
+            throw new InvalidTaskException("Title is required");
         }
         if (task.getStatusCode() == null || task.getStatusCode().isBlank()) {
-            throw new IllegalArgumentException("Status code is required");
+            throw new InvalidTaskException("Status code is required");
         }
         if (task.getStatusId() == null) {
-            throw new IllegalArgumentException("Status ID is required");
+            throw new InvalidTaskException("Status ID is required");
         }
         if (task.getTypeCode() == null || task.getTypeCode().isBlank()) {
-            throw new IllegalArgumentException("Type code is required");
+            throw new InvalidTaskException("Type code is required");
         }
         if (task.getTypeId() == null) {
-            throw new IllegalArgumentException("Type ID is required");
+            throw new InvalidTaskException("Type ID is required");
         }
     }
 
     private void validateDueDate(Instant dueDate, Instant referenceDate) {
         if (dueDate != null && referenceDate != null && dueDate.isBefore(referenceDate)) {
-            throw new IllegalArgumentException("Due date cannot be before creation time");
+            throw new InvalidTaskException("Due date cannot be before creation time");
         }
     }
 
     private void validateSelfParent(Task task) {
         if (task.getParent() != null && task.getId() != null &&
                 task.getParent().getId().equals(task.getId())) {
-            throw new IllegalArgumentException("Task cannot be its own parent");
+            throw new InvalidTaskException("Task cannot be its own parent");
         }
     }
 }
+
 
 

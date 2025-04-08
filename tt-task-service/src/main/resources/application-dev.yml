@@ -24,3 +24,39 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: http://localhost:8080
+springdoc:
+  swagger-ui:
+    oauth2-redirect-url: http://localhost:9590/swagger-ui/oauth2-redirect.html
+    oauth:
+      client-id: swagger-client-task-service
+      client-secret: swagger-secret
+      use-basic-authentication-with-access-code-grant: true
+      scopes:
+        - openid
+        - profile
+        - offline_access
+        - task:create
+        - task:view
+        - task:update
+        - task:delete
+        - task:assign
+        - comment:create
+        - comment:view
+        - comment:update
+        - comment:delete
+        - attachment:create
+        - attachment:view
+        - attachment:update
+        - attachment:delete
+        - task-type:create
+        - task-type:view
+        - task-type:update
+        - task-type:delete
+        - task-status:create
+        - task-status:view
+        - task-status:update
+        - task-status:delete
+        - task-priority:create
+        - task-priority:view
+        - task-priority:update
+        - task-priority:delete

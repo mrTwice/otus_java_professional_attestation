@@ -2,6 +2,7 @@ package ru.otus.java.professional.yampolskiy.tttaskservice.taskstatuses.validato
 
 import ru.otus.java.professional.yampolskiy.tttaskservice.common.DomainValidator;
 import ru.otus.java.professional.yampolskiy.tttaskservice.taskstatuses.entities.TaskStatus;
+import ru.otus.java.professional.yampolskiy.tttaskservice.taskstatuses.exceptions.InvalidTaskStatusException;
 
 public class TaskStatusValidator implements DomainValidator<TaskStatus> {
 
@@ -14,19 +15,20 @@ public class TaskStatusValidator implements DomainValidator<TaskStatus> {
     public void validateForUpdate(TaskStatus existing, TaskStatus updated) {
         validateCommon(updated);
         if (!existing.getCode().equals(updated.getCode())) {
-            throw new IllegalArgumentException("TaskStatus code cannot be changed");
+            throw new InvalidTaskStatusException("TaskStatus code cannot be changed");
         }
     }
 
     private void validateCommon(TaskStatus status) {
         if (status.getCode() == null || status.getCode().isBlank()) {
-            throw new IllegalArgumentException("Code is required");
+            throw new InvalidTaskStatusException("Code is required");
         }
         if (status.getName() == null || status.getName().isBlank()) {
-            throw new IllegalArgumentException("Name is required");
+            throw new InvalidTaskStatusException("Name is required");
         }
         if (status.getColor() != null && !status.getColor().matches("^#[0-9A-Fa-f]{6}$")) {
-            throw new IllegalArgumentException("Color must be a hex value like #FF0000");
+            throw new InvalidTaskStatusException("Color must be a hex value like #FF0000");
         }
     }
 }
+

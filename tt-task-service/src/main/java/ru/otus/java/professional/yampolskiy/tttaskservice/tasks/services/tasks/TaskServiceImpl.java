@@ -1,6 +1,5 @@
-package ru.otus.java.professional.yampolskiy.tttaskservice.tasks.services;
+package ru.otus.java.professional.yampolskiy.tttaskservice.tasks.services.tasks;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -8,9 +7,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.otus.java.professional.yampolskiy.tttaskservice.tasks.dtos.task.TaskFilterRequest;
 import ru.otus.java.professional.yampolskiy.tttaskservice.tasks.entities.Task;
-import ru.otus.java.professional.yampolskiy.tttaskservice.tasks.entities.TaskPriority;
+import ru.otus.java.professional.yampolskiy.tttaskservice.tasks.exceptions.task.TaskAlreadyDeletedException;
+import ru.otus.java.professional.yampolskiy.tttaskservice.tasks.exceptions.task.TaskNotFoundException;
 import ru.otus.java.professional.yampolskiy.tttaskservice.tasks.repositories.TaskRepository;
-import ru.otus.java.professional.yampolskiy.tttaskservice.tasks.services.filtering.TaskSpecifications;
+import ru.otus.java.professional.yampolskiy.tttaskservice.tasks.services.TaskCodeResolver;
+import ru.otus.java.professional.yampolskiy.tttaskservice.tasks.services.tasks.filtering.TaskSpecifications;
 import ru.otus.java.professional.yampolskiy.tttaskservice.common.DomainValidator;
 
 import java.time.Instant;
@@ -23,15 +24,16 @@ import java.util.UUID;
 public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
-    private final TaskPriorityService taskPriorityService;
+    private final TaskCodeResolver taskCodeResolver;
     private final DomainValidator<Task> taskValidator;
 
     @Override
     public Task create(Task task) {
+        taskCodeResolver.resolve(task);
         taskValidator.validateForCreate(task);
-        applyPriority(task);
         return taskRepository.save(task);
     }
+
 
     @Override
     public Task update(UUID taskId, Task updatedTask) {
@@ -41,18 +43,18 @@ public class TaskServiceImpl implements TaskService {
         existingTask.setTitle(updatedTask.getTitle());
         existingTask.setDescription(updatedTask.getDescription());
         existingTask.setStatusId(updatedTask.getStatusId());
-        existingTask.setStatusCode(updatedTask.getStatusCode());
         existingTask.setAssigneeId(updatedTask.getAssigneeId());
         existingTask.setDueDate(updatedTask.getDueDate());
         existingTask.setCompletedAt(updatedTask.getCompletedAt());
         existingTask.setPriorityId(updatedTask.getPriorityId());
         existingTask.setTypeId(updatedTask.getTypeId());
-        existingTask.setTypeCode(updatedTask.getTypeCode());
 
-        applyPriority(existingTask);
+        taskCodeResolver.resolve(existingTask);
 
         return taskRepository.save(existingTask);
     }
+
+
 
     @Override
     @Transactional(readOnly = true)
@@ -82,7 +84,7 @@ public class TaskServiceImpl implements TaskService {
     public void delete(UUID taskId) {
         Task task = getByIdOrThrow(taskId);
         if (task.getDeletedAt() != null) {
-            throw new IllegalStateException("Task already deleted");
+            throw new TaskAlreadyDeletedException(taskId);
         }
         task.setDeletedAt(Instant.now());
         taskRepository.save(task);
@@ -115,15 +117,6 @@ public class TaskServiceImpl implements TaskService {
     private Task getByIdOrThrow(UUID id) {
         return taskRepository.findById(id)
                 .filter(task -> task.getDeletedAt() == null)
-                .orElseThrow(() -> new EntityNotFoundException("Task not found with id: " + id));
-    }
-
-    private void applyPriority(Task task) {
-        if (task.getPriorityId() != null) {
-            TaskPriority priority = taskPriorityService.findById(task.getPriorityId());
-            task.setPriorityCode(priority.getCode());
-        } else {
-            task.setPriorityCode(null);
-        }
+                .orElseThrow(() -> new TaskNotFoundException(id));
     }
 }

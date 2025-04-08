@@ -1,4 +1,4 @@
-package ru.otus.java.professional.yampolskiy.tttaskservice.tasks.services;
+package ru.otus.java.professional.yampolskiy.tttaskservice.tasks.services.taskpriority;
 
 import ru.otus.java.professional.yampolskiy.tttaskservice.tasks.entities.TaskPriority;
 

@@ -1,25 +1,26 @@
-package ru.otus.java.professional.yampolskiy.ttuserservice.configurations;
+package ru.otus.java.professional.yampolskiy.tttaskservice.common.config;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.*;
 import io.swagger.v3.oas.models.Components;
-import io.swagger.v3.oas.models.media.*;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.media.Content;
+import io.swagger.v3.oas.models.media.MediaType;
+import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
-import io.swagger.v3.oas.models.Operation;
-import io.swagger.v3.oas.models.OpenAPI;
 import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import ru.otus.java.professional.yampolskiy.ttuserservice.dtos.error.ErrorDTO;
-import ru.otus.java.professional.yampolskiy.ttuserservice.dtos.error.ValidationEmailErrorDTO;
-import ru.otus.java.professional.yampolskiy.ttuserservice.dtos.error.ValidationEmailPartErrorDTO;
+import ru.otus.java.professional.yampolskiy.tttaskservice.common.dto.ErrorDTO;
+
 
 @OpenAPIDefinition(
         info = @Info(
-                title = "TT User Service",
+                title = "TT Task Service",
                 version = "1.0",
                 description = "User API"
         ),
@@ -37,25 +38,14 @@ import ru.otus.java.professional.yampolskiy.ttuserservice.dtos.error.ValidationE
                         scopes = {
                                 @OAuthScope(name = "openid", description = "Basic identity scope"),
                                 @OAuthScope(name = "profile", description = "User profile"),
-                                @OAuthScope(name = "user:view", description = "View users"),
-                                @OAuthScope(name = "user:update", description = "Update users"),
-                                @OAuthScope(name = "user:delete", description = "Delete users"),
-                                @OAuthScope(name = "user:assign-roles", description = "Assign roles"),
-                                @OAuthScope(name = "user:manage", description = "Manage users"),
-                                @OAuthScope(name = "role:create", description = "Create roles"),
-                                @OAuthScope(name = "role:view", description = "View roles"),
-                                @OAuthScope(name = "role:update", description = "Update roles"),
-                                @OAuthScope(name = "role:delete", description = "Delete roles"),
-                                @OAuthScope(name = "permission:create", description = "Create permissions"),
-                                @OAuthScope(name = "permission:view", description = "View permissions"),
-                                @OAuthScope(name = "permission:update", description = "Update permissions"),
-                                @OAuthScope(name = "permission:delete", description = "Delete permissions")
+                                @OAuthScope(name = "offline_access", description = "Offline access (refresh tokens)")
+
                         }
                 )
         )
 )
 @Configuration
-public class OpenApiConfig {
+public class TaskServiceOpenApiConfig {
 
     @Bean
     public OpenApiCustomizer globalResponseCustomiser() {
@@ -75,7 +65,7 @@ public class OpenApiConfig {
         responses.addApiResponse("401", createResponse("Unauthorized (неавторизован)", "#/components/schemas/ErrorDTO"));
         responses.addApiResponse("403", createResponse("Forbidden (нет доступа)", "#/components/schemas/ErrorDTO"));
         responses.addApiResponse("404", createResponse("Not Found", "#/components/schemas/ErrorDTO"));
-        responses.addApiResponse("422", createResponse("Unprocessable Entity (валидация email)", "#/components/schemas/ValidationEmailErrorDTO"));
+        //responses.addApiResponse("422", createResponse("Unprocessable Entity (валидация email)", "#/components/schemas/ValidationEmailErrorDTO"));
         responses.addApiResponse("500", createResponse("Internal Server Error", "#/components/schemas/ErrorDTO"));
     }
 
@@ -91,13 +81,12 @@ public class OpenApiConfig {
         return new OpenAPI()
                 .components(new Components()
                         .addSchemas("ErrorDTO", new Schema<ErrorDTO>().$ref("#/components/schemas/ErrorDTO"))
-                        .addSchemas("ValidationEmailErrorDTO", new Schema<ValidationEmailErrorDTO>().$ref("#/components/schemas/ValidationEmailErrorDTO"))
-                        .addSchemas("ValidationEmailPartErrorDTO", new Schema<ValidationEmailPartErrorDTO>().$ref("#/components/schemas/ValidationEmailPartErrorDTO"))
+
                 )
-                        .info(new io.swagger.v3.oas.models.info.Info()
-                        .title("TT User Service API")
+                .info(new io.swagger.v3.oas.models.info.Info()
+                        .title("TT Task Service API")
                         .version("1.0")
-                        .description("Документация сервиса пользователей")
+                        .description("Документация сервиса задач")
                 );
     }
 }

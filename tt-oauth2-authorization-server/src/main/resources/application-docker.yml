@@ -5,7 +5,7 @@ spring:
     name: tt-oauth2-authorization-server
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5434/tt_oauth2_authorization_server?minimumIdle=2
+    url: jdbc:postgresql://tt-oauth2-authorization-server-postgres:5434/tt_oauth2_authorization_server?minimumIdle=2
     username: tt_oauth2_authorization_server_admin
     password: tt_oauth2_authorization_server_admin
     hikari:
@@ -24,10 +24,10 @@ jwk:
     secret: change-me-super-secret
 
 auth-server:
-  base-uri: http://localhost:8080
+  base-uri: http://tt-oauth2-authorization-server:8080
 
 user-service:
-  base-uri: http://localhost:9591
+  base-uri: http://tt-user-service:9591
   auth:
     client-id: internal-service-client
     client-secret: internal-secret

@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.otus.java.professional.yampolskiy.tttaskservice.attachments.entities.Attachment;
+import ru.otus.java.professional.yampolskiy.tttaskservice.attachments.exceptions.AttachmentNotFoundException;
 import ru.otus.java.professional.yampolskiy.tttaskservice.attachments.repositories.AttachmentRepository;
 import ru.otus.java.professional.yampolskiy.tttaskservice.common.DomainValidator;
 
@@ -50,7 +51,7 @@ public class AttachmentServiceImpl implements AttachmentService {
     @Transactional(readOnly = true)
     public Attachment findById(UUID id) {
         return attachmentRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Attachment not found with id: " + id));
+                .orElseThrow(() -> new AttachmentNotFoundException(id));
     }
 
     @Override

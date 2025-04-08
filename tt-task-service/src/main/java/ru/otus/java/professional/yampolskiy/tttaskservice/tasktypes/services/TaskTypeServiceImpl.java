@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.otus.java.professional.yampolskiy.tttaskservice.common.DomainValidator;
 import ru.otus.java.professional.yampolskiy.tttaskservice.tasktypes.entities.TaskType;
+import ru.otus.java.professional.yampolskiy.tttaskservice.tasktypes.exceptions.TaskTypeAlreadyDeletedException;
+import ru.otus.java.professional.yampolskiy.tttaskservice.tasktypes.exceptions.TaskTypeNotFoundException;
 import ru.otus.java.professional.yampolskiy.tttaskservice.tasktypes.repositories.TaskTypeRepository;
 
 import java.time.Instant;
@@ -26,14 +28,14 @@ public class TaskTypeServiceImpl implements TaskTypeService {
     @Transactional(readOnly = true)
     public TaskType findById(UUID id) {
         return taskTypeRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new EntityNotFoundException("TaskType not found with id: " + id));
+                .orElseThrow(() -> new TaskTypeNotFoundException(id));
     }
 
     @Override
     @Transactional(readOnly = true)
     public TaskType findByCode(String code) {
         return taskTypeRepository.findByCodeAndDeletedAtIsNull(code)
-                .orElseThrow(() -> new EntityNotFoundException("TaskType not found with code: " + code));
+                .orElseThrow(() -> new TaskTypeNotFoundException(code));
     }
 
     @Override
@@ -84,7 +86,7 @@ public class TaskTypeServiceImpl implements TaskTypeService {
     public void delete(UUID id) {
         TaskType type = findById(id);
         if (type.getDeletedAt() != null) {
-            throw new IllegalStateException("TaskType already deleted");
+            throw new TaskTypeAlreadyDeletedException(id);
         }
         type.setDeletedAt(Instant.now());
         taskTypeRepository.save(type);

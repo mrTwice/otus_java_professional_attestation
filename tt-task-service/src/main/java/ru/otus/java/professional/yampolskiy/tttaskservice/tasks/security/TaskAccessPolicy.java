@@ -6,7 +6,10 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Component("taskAccessPolicy")
@@ -16,21 +19,23 @@ public class TaskAccessPolicy {
         Jwt jwt = extractJwt(authentication);
         if (jwt == null) return false;
 
-        List<String> permissions = jwt.getClaimAsStringList("permissions");
-        return permissions != null && permissions.contains(permission);
+        List<String> permissions = getClaimAsList(jwt, "permissions");
+        List<String> scopes = jwt.getClaimAsStringList("scope");
+
+        log.debug("🔍 Checking permission [{}], permissions: {}, scopes: {}", permission, permissions, scopes);
+
+        return permissions.contains(permission) || (scopes != null && scopes.contains(permission));
     }
 
-    private Jwt extractJwt(Authentication authentication) {
-        if (authentication instanceof JwtAuthenticationToken jwtAuth) {
-            return jwtAuth.getToken();
-        }
+    public boolean hasAnyPermission(Authentication authentication, String... permissionsToCheck) {
+        Jwt jwt = extractJwt(authentication);
+        if (jwt == null) return false;
 
-        Object principal = authentication.getPrincipal();
-        if (principal instanceof Jwt jwt) {
-            return jwt;
-        }
+        List<String> permissions = getClaimAsList(jwt, "permissions");
+        List<String> scopes = jwt.getClaimAsStringList("scope");
 
-        return null;
+        return Arrays.stream(permissionsToCheck)
+                .anyMatch(p -> permissions.contains(p) || (scopes != null && scopes.contains(p)));
     }
 
     public boolean canCreateTask(Authentication auth) {
@@ -53,4 +58,28 @@ public class TaskAccessPolicy {
         return hasPermission(auth, "task:assign");
     }
 
+    private Jwt extractJwt(Authentication authentication) {
+        if (authentication instanceof JwtAuthenticationToken jwtAuth) {
+            return jwtAuth.getToken();
+        }
+
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof Jwt jwt) {
+            return jwt;
+        }
+
+        return null;
+    }
+
+    private List<String> getClaimAsList(Jwt jwt, String claimName) {
+        Object claim = jwt.getClaims().get(claimName);
+        if (claim instanceof Collection<?> collection) {
+            return collection.stream()
+                    .filter(Objects::nonNull)
+                    .map(Object::toString)
+                    .toList();
+        }
+        return List.of();
+    }
 }
+

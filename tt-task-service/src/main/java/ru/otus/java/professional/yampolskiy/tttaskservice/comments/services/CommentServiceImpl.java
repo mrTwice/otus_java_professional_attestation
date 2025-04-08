@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.otus.java.professional.yampolskiy.tttaskservice.comments.entities.Comment;
+import ru.otus.java.professional.yampolskiy.tttaskservice.comments.exceptions.CommentNotFoundException;
 import ru.otus.java.professional.yampolskiy.tttaskservice.comments.repositories.CommentRepository;
 import ru.otus.java.professional.yampolskiy.tttaskservice.common.DomainValidator;
 
@@ -74,7 +75,7 @@ public class CommentServiceImpl implements CommentService {
 
     private Comment getByIdOrThrow(UUID id) {
         return commentRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Comment not found with id: " + id));
+                .orElseThrow(() -> new CommentNotFoundException(id));
     }
 }
 

@@ -2,6 +2,7 @@ package ru.otus.java.professional.yampolskiy.tttaskservice.tasktypes.validators;
 
 import ru.otus.java.professional.yampolskiy.tttaskservice.common.DomainValidator;
 import ru.otus.java.professional.yampolskiy.tttaskservice.tasktypes.entities.TaskType;
+import ru.otus.java.professional.yampolskiy.tttaskservice.tasktypes.exceptions.InvalidTaskTypeException;
 
 public class TaskTypeValidator implements DomainValidator<TaskType> {
 
@@ -14,19 +15,20 @@ public class TaskTypeValidator implements DomainValidator<TaskType> {
     public void validateForUpdate(TaskType existing, TaskType updated) {
         validateCommon(updated);
         if (!existing.getCode().equals(updated.getCode())) {
-            throw new IllegalArgumentException("TaskType code cannot be changed");
+            throw new InvalidTaskTypeException("TaskType code cannot be changed");
         }
     }
 
     private void validateCommon(TaskType type) {
         if (type.getCode() == null || type.getCode().isBlank()) {
-            throw new IllegalArgumentException("Code is required");
+            throw new InvalidTaskTypeException("Code is required");
         }
         if (type.getName() == null || type.getName().isBlank()) {
-            throw new IllegalArgumentException("Name is required");
+            throw new InvalidTaskTypeException("Name is required");
         }
         if (type.getIcon() != null && type.getIcon().length() > 100) {
-            throw new IllegalArgumentException("Icon must be 100 characters max");
+            throw new InvalidTaskTypeException("Icon must be 100 characters max");
         }
     }
 }
+

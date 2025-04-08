@@ -1,6 +1,13 @@
 package ru.otus.java.professional.yampolskiy.tttaskservice.tasktypes.controllers;
 
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,6 +32,12 @@ public class TaskTypeController {
     private final TaskTypeService taskTypeService;
     private final TaskTypeMapper taskTypeMapper;
 
+    @Operation(summary = "Получить все типы задач", description = "Возвращает список всех доступных типов задач (отсортированных)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Успешно получен список типов задач",
+                    content = @Content(schema = @Schema(implementation = TaskTypeListResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Нет прав на просмотр")
+    })
     @GetMapping
     @PreAuthorize("@taskTypeAccessPolicy.canViewTaskType(authentication)")
     public TaskTypeListResponse getAll() {
@@ -33,53 +46,100 @@ public class TaskTypeController {
         return new TaskTypeListResponse(responses, responses.size());
     }
 
+    @Operation(summary = "Получить типы задач по умолчанию", description = "Возвращает только те типы задач, которые помечены как default")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Успешно", content = @Content(array = @ArraySchema(schema = @Schema(implementation = TaskTypeShortResponse.class))))
+    })
     @GetMapping("/default")
     @PreAuthorize("@taskTypeAccessPolicy.canViewTaskType(authentication)")
     public List<TaskTypeShortResponse> getDefaultTypes() {
         return taskTypeMapper.toShortResponseList(taskTypeService.findDefaults());
     }
 
+    @Operation(summary = "Получить тип задачи по ID")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Тип задачи найден", content = @Content(schema = @Schema(implementation = TaskTypeResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Тип задачи не найден")
+    })
     @GetMapping("/{id}")
     @PreAuthorize("@taskTypeAccessPolicy.canViewTaskType(authentication)")
-    public TaskTypeResponse getById(@PathVariable UUID id) {
+    public TaskTypeResponse getById(
+            @Parameter(description = "ID типа задачи") @PathVariable UUID id
+    ) {
         TaskType type = taskTypeService.findById(id);
         return taskTypeMapper.toResponse(type);
     }
 
+    @Operation(summary = "Получить тип задачи по коду")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Тип задачи найден", content = @Content(schema = @Schema(implementation = TaskTypeResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Тип задачи не найден")
+    })
     @GetMapping("/by-code/{code}")
     @PreAuthorize("@taskTypeAccessPolicy.canViewTaskType(authentication)")
-    public TaskTypeResponse getByCode(@PathVariable String code) {
+    public TaskTypeResponse getByCode(
+            @Parameter(description = "Код типа задачи") @PathVariable String code
+    ) {
         TaskType type = taskTypeService.findByCode(code);
         return taskTypeMapper.toResponse(type);
     }
 
+    @Operation(summary = "Поиск типов задач", description = "Поиск по названию или описанию типа задачи")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Успешно", content = @Content(schema = @Schema(implementation = TaskTypeResponse.class)))
+    })
     @GetMapping("/search")
     @PreAuthorize("@taskTypeAccessPolicy.canViewTaskType(authentication)")
-    public Page<TaskTypeResponse> search(@RequestParam String q, Pageable pageable) {
+    public Page<TaskTypeResponse> search(
+            @Parameter(description = "Поисковая строка") @RequestParam String q,
+            Pageable pageable
+    ) {
         return taskTypeService.search(q, pageable).map(taskTypeMapper::toResponse);
     }
 
+    @Operation(summary = "Создать тип задачи")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Тип задачи создан", content = @Content(schema = @Schema(implementation = TaskTypeResponse.class))),
+            @ApiResponse(responseCode = "422", description = "Ошибка валидации данных")
+    })
     @PostMapping
     @PreAuthorize("@taskTypeAccessPolicy.canCreateTaskType(authentication)")
-    public TaskTypeResponse create(@RequestBody @Valid TaskTypeCreateRequest request) {
+    public TaskTypeResponse create(
+            @RequestBody @Valid TaskTypeCreateRequest request
+    ) {
         TaskType entity = taskTypeMapper.toEntity(request);
         TaskType created = taskTypeService.create(entity);
         return taskTypeMapper.toResponse(created);
     }
 
+    @Operation(summary = "Обновить тип задачи")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Тип задачи обновлён", content = @Content(schema = @Schema(implementation = TaskTypeResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Тип задачи не найден")
+    })
     @PutMapping("/{id}")
     @PreAuthorize("@taskTypeAccessPolicy.canUpdateTaskType(authentication)")
-    public TaskTypeResponse update(@PathVariable UUID id,
-                                   @RequestBody @Valid TaskTypeUpdateRequest request) {
+    public TaskTypeResponse update(
+            @Parameter(description = "ID типа задачи") @PathVariable UUID id,
+            @RequestBody @Valid TaskTypeUpdateRequest request
+    ) {
         TaskType existing = taskTypeService.findById(id);
         taskTypeMapper.updateEntity(existing, request);
         TaskType updated = taskTypeService.update(id, existing);
         return taskTypeMapper.toResponse(updated);
     }
 
+    @Operation(summary = "Удалить тип задачи (мягкое удаление)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Тип задачи удалён"),
+            @ApiResponse(responseCode = "404", description = "Тип задачи не найден"),
+            @ApiResponse(responseCode = "409", description = "Тип задачи уже удалён")
+    })
     @DeleteMapping("/{id}")
     @PreAuthorize("@taskTypeAccessPolicy.canDeleteTaskType(authentication)")
-    public void delete(@PathVariable UUID id) {
+    public void delete(
+            @Parameter(description = "ID типа задачи") @PathVariable UUID id
+    ) {
         taskTypeService.delete(id);
     }
 }

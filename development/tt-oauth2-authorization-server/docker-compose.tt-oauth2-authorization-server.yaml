@@ -29,11 +29,11 @@ services:
 #      args:
 #        - NO_CACHE=true
 #    image: tt-oauth2-authorization-server:latest
-#    container_name:tt-oauth2-authorization-server
+#    container_name: tt-oauth2-authorization-server
 #    environment:
 #      - SPRING_PROFILES_ACTIVE=docker
 #    ports:
-#      - "9590:9590"
+#      - "8080:8080"
 #    networks:
 #      - db-net
 #    depends_on:

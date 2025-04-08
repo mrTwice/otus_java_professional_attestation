@@ -1,5 +1,6 @@
 package ru.otus.java.professional.yampolskiy.tttaskservice.taskstatuses.dtos;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,19 +9,29 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "Запрос на создание статуса задачи")
 public class TaskStatusCreateRequest {
 
     @NotBlank
+    @Schema(description = "Код статуса", example = "in_progress")
     private String code;
 
     @NotBlank
+    @Schema(description = "Название", example = "В работе")
     private String name;
 
+    @Schema(description = "Описание", example = "Задача в процессе выполнения")
     private String description;
 
-    private boolean isFinal = false;
-    private boolean isDefault = false;
+    @Schema(description = "Финальный статус", example = "false")
+    private boolean isFinal;
 
+    @Schema(description = "По умолчанию", example = "false")
+    private boolean isDefault;
+
+    @Schema(description = "Сортировка", example = "1")
     private Integer sortOrder;
-    private String color; // напр. "#33AACC"
+
+    @Schema(description = "Цвет в HEX", example = "#33AACC")
+    private String color;
 }

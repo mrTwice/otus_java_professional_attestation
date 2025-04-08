@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.otus.java.professional.yampolskiy.tttaskservice.common.DomainValidator;
 import ru.otus.java.professional.yampolskiy.tttaskservice.taskstatuses.entities.TaskStatus;
+import ru.otus.java.professional.yampolskiy.tttaskservice.taskstatuses.exceptions.TaskStatusNotFoundException;
 import ru.otus.java.professional.yampolskiy.tttaskservice.taskstatuses.repositories.TaskStatusRepository;
 
 import java.util.List;
@@ -25,14 +26,14 @@ public class TaskStatusServiceImpl implements TaskStatusService {
     @Transactional(readOnly = true)
     public TaskStatus findById(UUID id) {
         return taskStatusRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("TaskStatus not found with id: " + id));
+                .orElseThrow(() -> new TaskStatusNotFoundException(id));
     }
 
     @Override
     @Transactional(readOnly = true)
     public TaskStatus findByCode(String code) {
         return taskStatusRepository.findByCode(code)
-                .orElseThrow(() -> new EntityNotFoundException("TaskStatus not found with code: " + code));
+                .orElseThrow(() -> new TaskStatusNotFoundException(code));
     }
 
     @Override

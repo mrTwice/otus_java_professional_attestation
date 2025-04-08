@@ -1,4 +1,4 @@
-package ru.otus.java.professional.yampolskiy.tttaskservice.tasks.services;
+package ru.otus.java.professional.yampolskiy.tttaskservice.tasks.services.tasks;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

@@ -6,7 +6,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import ru.otus.java.professional.yampolskiy.tttaskservice.tasks.entities.TaskPriority;
-import ru.otus.java.professional.yampolskiy.tttaskservice.tasks.services.TaskPriorityService;
+import ru.otus.java.professional.yampolskiy.tttaskservice.tasks.services.taskpriority.TaskPriorityService;
 
 import java.util.List;
 

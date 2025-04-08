@@ -1,10 +1,11 @@
-package ru.otus.java.professional.yampolskiy.tttaskservice.tasks.services;
+package ru.otus.java.professional.yampolskiy.tttaskservice.tasks.services.taskpriority;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.otus.java.professional.yampolskiy.tttaskservice.tasks.entities.TaskPriority;
+import ru.otus.java.professional.yampolskiy.tttaskservice.tasks.exceptions.taskpriority.TaskPriorityAlreadyDeletedException;
+import ru.otus.java.professional.yampolskiy.tttaskservice.tasks.exceptions.taskpriority.TaskPriorityNotFoundException;
 import ru.otus.java.professional.yampolskiy.tttaskservice.tasks.repositories.TaskPriorityRepository;
 import ru.otus.java.professional.yampolskiy.tttaskservice.common.DomainValidator;
 
@@ -24,14 +25,14 @@ public class TaskPriorityServiceImpl implements TaskPriorityService {
     @Transactional(readOnly = true)
     public TaskPriority findById(UUID id) {
         return taskPriorityRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new EntityNotFoundException("TaskPriority not found with id: " + id));
+                .orElseThrow(() -> new TaskPriorityNotFoundException(id));
     }
 
     @Override
     @Transactional(readOnly = true)
     public TaskPriority findByCode(String code) {
         return taskPriorityRepository.findByCodeAndDeletedAtIsNull(code)
-                .orElseThrow(() -> new EntityNotFoundException("TaskPriority not found with code: " + code));
+                .orElseThrow(() -> new TaskPriorityNotFoundException(code));
     }
 
     @Override
@@ -76,7 +77,7 @@ public class TaskPriorityServiceImpl implements TaskPriorityService {
     public void delete(UUID id) {
         TaskPriority priority = findById(id);
         if (priority.getDeletedAt() != null) {
-            throw new IllegalStateException("TaskPriority already deleted");
+            throw new TaskPriorityAlreadyDeletedException(id);
         }
         priority.setDeletedAt(Instant.now());
         taskPriorityRepository.save(priority);

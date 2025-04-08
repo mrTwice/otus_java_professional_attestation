@@ -1,4 +1,4 @@
-package ru.otus.java.professional.yampolskiy.tttaskservice.tasks.services.filtering;
+package ru.otus.java.professional.yampolskiy.tttaskservice.tasks.services.tasks.filtering;
 
 import org.springframework.data.jpa.domain.Specification;
 import ru.otus.java.professional.yampolskiy.tttaskservice.tasks.dtos.task.TaskFilterRequest;
