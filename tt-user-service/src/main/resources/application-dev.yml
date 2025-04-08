@@ -12,7 +12,7 @@ spring:
       minimumIdle: 2
       maximumPoolSize: 4
   jpa:
-    show-sql: true
+    show-sql: false
     open-in-view: false
     hibernate:
       ddl-auto: validate
@@ -24,3 +24,11 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: http://localhost:8080
+springdoc:
+  swagger-ui:
+    oauth2-redirect-url: http://localhost:9591/swagger-ui/oauth2-redirect.html
+    oauth:
+      client-id: swagger-client-user-service
+      client-secret: swagger-secret
+      use-basic-authentication-with-access-code-grant: true
+      scopes: openid,profile,user:view,user:manage,user:delete

@@ -2,16 +2,11 @@ package ru.otus.java.professional.yampolskiy.ttuserservice.security;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+
+import java.util.*;
 
 @Slf4j
 @Component("accessPolicy")
@@ -21,35 +16,39 @@ public class AccessPolicy {
         Jwt jwt = extractJwt(authentication);
         if (jwt == null) return false;
 
-        List<String> permissions = jwt.getClaimAsStringList("permissions");
-        return permissions != null && permissions.contains(permission);
+        List<String> permissions = getClaimAsList(jwt, "permissions");
+        List<String> scopes = jwt.getClaimAsStringList("scope");
+
+        log.info("🔍 Permissions: {}", permissions);
+        log.info("🔍 Scopes: {}", scopes);
+
+        return permissions.contains(permission) || (scopes != null && scopes.contains(permission));
     }
 
     public boolean hasAnyPermission(Authentication authentication, String... permissionsToCheck) {
         Jwt jwt = extractJwt(authentication);
         if (jwt == null) return false;
 
-        List<String> permissions = jwt.getClaimAsStringList("permissions");
-        if (permissions == null) return false;
+        List<String> permissions = getClaimAsList(jwt, "permissions");
+        List<String> scopes = jwt.getClaimAsStringList("scope");
 
-        return Arrays.stream(permissionsToCheck).anyMatch(permissions::contains);
+        return Arrays.stream(permissionsToCheck)
+                .anyMatch(p -> permissions.contains(p) || (scopes != null && scopes.contains(p)));
     }
 
     public boolean hasRole(Authentication authentication, String role) {
         Jwt jwt = extractJwt(authentication);
         if (jwt == null) return false;
 
-        List<String> roles = jwt.getClaimAsStringList("roles");
-        return roles != null && roles.contains(role);
+        List<String> roles = getClaimAsList(jwt, "roles");
+        return roles.contains(role);
     }
 
     public boolean hasAnyRole(Authentication authentication, String... rolesToCheck) {
         Jwt jwt = extractJwt(authentication);
         if (jwt == null) return false;
 
-        List<String> roles = jwt.getClaimAsStringList("roles");
-        if (roles == null) return false;
-
+        List<String> roles = getClaimAsList(jwt, "roles");
         return Arrays.stream(rolesToCheck).anyMatch(roles::contains);
     }
 
@@ -73,13 +72,11 @@ public class AccessPolicy {
     }
 
     public boolean canAccessUser(Authentication authentication, UUID targetUserId) {
-        return isSelf(authentication, targetUserId) ||
-                hasPermissionOrRole(authentication, "user:view", "ADMIN");
+        return isSelf(authentication, targetUserId) || hasPermissionOrRole(authentication, "user:view", "ADMIN");
     }
 
     public boolean canUpdateUser(Authentication authentication, UUID targetUserId) {
-        return isSelf(authentication, targetUserId) ||
-                hasPermissionOrRole(authentication, "user:update", "ADMIN");
+        return isSelf(authentication, targetUserId) || hasPermissionOrRole(authentication, "user:update", "ADMIN");
     }
 
     public boolean canChangePassword(Authentication authentication, UUID userId) {
@@ -111,7 +108,6 @@ public class AccessPolicy {
         return hasPermissionOrRole(authentication, "user:delete", "ADMIN");
     }
 
-
     public boolean canAdminUpdateUsers(Authentication authentication) {
         return hasPermissionOrRole(authentication, "user:manage", "ADMIN");
     }
@@ -121,9 +117,9 @@ public class AccessPolicy {
     }
 
     public boolean canManagePermissions(Authentication authentication) {
-        return hasPermissionOrRole(authentication, "permission:create", "ADMIN") ||
-                hasPermissionOrRole(authentication, "permission:update", "ADMIN") ||
-                hasPermissionOrRole(authentication, "permission:delete", "ADMIN");
+        return hasPermissionOrRole(authentication, "permission:create", "ADMIN")
+                || hasPermissionOrRole(authentication, "permission:update", "ADMIN")
+                || hasPermissionOrRole(authentication, "permission:delete", "ADMIN");
     }
 
     public boolean canChangePasswordFor(Authentication authentication, UUID targetUserId) {
@@ -143,8 +139,7 @@ public class AccessPolicy {
             return jwtAuth.getToken();
         }
 
-        Object principal = authentication.getPrincipal();
-        if (principal instanceof Jwt jwt) {
+        if (authentication.getPrincipal() instanceof Jwt jwt) {
             return jwt;
         }
 
@@ -154,14 +149,24 @@ public class AccessPolicy {
     public boolean isInternalClient(Authentication authentication) {
         log.info("🔐 Проверка internal клиента: {}", authentication);
 
-        if (authentication instanceof JwtAuthenticationToken jwtAuth) {
-            Jwt jwt = jwtAuth.getToken();
-            String clientId = jwt.getClaimAsString("client_id");
-            log.info("🔐 client_id из JWT: {}", clientId);
-            return "internal-service-client".equals(clientId);
-        }
+        Jwt jwt = extractJwt(authentication);
+        if (jwt == null) return false;
 
-        return false;
+        String clientId = jwt.getClaimAsString("client_id");
+        log.info("🔐 client_id из JWT: {}", clientId);
+        return "internal-service-client".equals(clientId);
+    }
+
+    private List<String> getClaimAsList(Jwt jwt, String claimName) {
+        Object claim = jwt.getClaims().get(claimName);
+        if (claim instanceof Collection<?> collection) {
+            return collection.stream()
+                    .filter(Objects::nonNull)
+                    .map(Object::toString)
+                    .toList();
+        }
+        return List.of();
     }
 }
+
 

@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -27,9 +28,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 import org.springframework.util.StringUtils;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.auth.infrastructure.logging.AuthorizationCodeRequestLogger;
 import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.auth.infrastructure.logging.TokenEndpointLoggingFilter;
 import ru.otus.java.professional.yampolskiy.ttoauth2authorizationserver.auth.core.service.DatabaseAuthorizationService;
+
+import java.util.List;
 
 @OpenAPIDefinition(
         info = @Info(
@@ -60,6 +66,7 @@ public class AuthorizationSecurityConfig {
                 OAuth2AuthorizationServerConfigurer.authorizationServer();
 
         http
+                .cors(Customizer.withDefaults())
                 .authenticationProvider(clientAuthenticationProvider)
                 .authenticationProvider(authorizationCodeRequestAuthenticationProvider)
                 .authenticationProvider(authorizationCodeAuthenticationProvider)
@@ -120,8 +127,10 @@ public class AuthorizationSecurityConfig {
             AuthenticationProvider userAuthenticationProvider
     ) throws Exception {
         http
+                .cors(Customizer.withDefaults())
                 .authenticationProvider(userAuthenticationProvider)
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/oauth2/token").permitAll()
                         .requestMatchers("/api/v1/auth/register").permitAll()
                         .requestMatchers(
                                 "/v3/api-docs/**",
@@ -131,7 +140,7 @@ public class AuthorizationSecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/api/v1/auth/register")
+                        .ignoringRequestMatchers("/api/v1/auth/register", "/oauth2/token")
                 )
                 .formLogin(Customizer.withDefaults())
                 .requestCache(requestCache -> requestCache
@@ -162,5 +171,18 @@ public class AuthorizationSecurityConfig {
                         authentication != null ? authentication.getClass().getSimpleName() : "null", exception);
             }
         };
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of("http://localhost:9591", "http://localhost:9590"));
+        config.setAllowedMethods(List.of("GET", "POST", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
 }

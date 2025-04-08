@@ -1,6 +1,9 @@
 package ru.otus.java.professional.yampolskiy.ttuserservice.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,14 +21,17 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/permissions")
 @RequiredArgsConstructor
+@Tag(name = "Permission API", description = "Операции над разрешениями (permissions)")
 public class PermissionController {
 
     private final PermissionService permissionService;
     private final PermissionMapper permissionMapper;
 
+    @Operation(summary = "Создать разрешение")
     @PreAuthorize("@accessPolicy.canManagePermissions(authentication)")
     @PostMapping
     public ResponseEntity<PermissionResponseDTO> createPermission(@RequestBody @Valid PermissionDTO dto) {
@@ -34,6 +40,7 @@ public class PermissionController {
         return ResponseEntity.status(HttpStatus.CREATED).body(permissionMapper.toResponseDTOFromEntity(saved));
     }
 
+    @Operation(summary = "Получить разрешение по ID")
     @PreAuthorize("@accessPolicy.canViewRoles(authentication)")
     @GetMapping("/{id}")
     public ResponseEntity<PermissionResponseDTO> getPermissionById(@PathVariable UUID id) {
@@ -41,6 +48,7 @@ public class PermissionController {
         return ResponseEntity.ok(permissionMapper.toResponseDTOFromEntity(permission));
     }
 
+    @Operation(summary = "Получить разрешение по имени")
     @PreAuthorize("@accessPolicy.canViewRoles(authentication)")
     @GetMapping("/by-name/{name}")
     public ResponseEntity<PermissionResponseDTO> getPermissionByName(@PathVariable String name) {
@@ -48,6 +56,7 @@ public class PermissionController {
         return ResponseEntity.ok(permissionMapper.toResponseDTOFromEntity(permission));
     }
 
+    @Operation(summary = "Получить список всех разрешений")
     @PreAuthorize("@accessPolicy.canViewRoles(authentication)")
     @GetMapping
     public ResponseEntity<List<PermissionResponseDTO>> getAllPermissions() {
@@ -58,6 +67,7 @@ public class PermissionController {
         return ResponseEntity.ok(dtos);
     }
 
+    @Operation(summary = "Обновить разрешение")
     @PreAuthorize("@accessPolicy.canManagePermissions(authentication)")
     @PutMapping("/{id}")
     public ResponseEntity<PermissionResponseDTO> updatePermission(@PathVariable UUID id, @RequestBody @Valid PermissionDTO dto) {
@@ -66,6 +76,7 @@ public class PermissionController {
         return ResponseEntity.ok(permissionMapper.toResponseDTOFromEntity(updated));
     }
 
+    @Operation(summary = "Удалить разрешение")
     @PreAuthorize("@accessPolicy.canManagePermissions(authentication)")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePermission(@PathVariable UUID id) {
@@ -73,6 +84,5 @@ public class PermissionController {
         return ResponseEntity.noContent().build();
     }
 }
-
 
 

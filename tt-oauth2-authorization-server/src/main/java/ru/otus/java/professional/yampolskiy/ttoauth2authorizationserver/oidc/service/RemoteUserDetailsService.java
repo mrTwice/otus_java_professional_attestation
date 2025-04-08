@@ -21,21 +21,17 @@ public class RemoteUserDetailsService implements UserDetailsService {
 
     //TODO подумать о переносе сервиса в external/users
     private final UserProfileClient userProfileClient;
+    private final UserAuthCache userAuthCache;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        log.info("🔐 RemoteUserDetailsService.loadUserByUsername called for: {}", username);
+
         try {
             UserPrincipalDTO user = userProfileClient.findByUsername(username);
-            log.debug("👤 DTO от user-service: {}", user.toString());
-            log.debug("👤 Получен пользователь: {}, active={}", user.getUsername(), user.isActive());
-            return User.withUsername(user.getUsername())
-                    .password(user.getPassword())
-                    .authorities(user.getPermissions().toArray(new String[0]))
-                    .accountLocked(user.isLocked())
-                    .disabled(!user.isActive())
-                    .accountExpired(false)
-                    .credentialsExpired(false)
-                    .build();
+            userAuthCache.put(username, user);
+            log.debug("👤 DTO от user-service: {}", user);
+            return user;
 
         } catch (IntegrationException e) {
             if ("USER_NOT_FOUND".equals(e.getCode())) {
@@ -50,13 +46,5 @@ public class RemoteUserDetailsService implements UserDetailsService {
             log.error("🔥 Непредвиденная ошибка при загрузке пользователя: {}", username, e);
             throw new InternalAuthenticationServiceException("Unexpected error", e);
         }
-    }
-
-    private boolean isAccountExpired(Instant expiresAt) {
-        return expiresAt != null && Instant.now().isAfter(expiresAt);
-    }
-
-    private boolean isCredentialsExpired(Instant expiresAt) {
-        return expiresAt != null && Instant.now().isAfter(expiresAt);
     }
 }

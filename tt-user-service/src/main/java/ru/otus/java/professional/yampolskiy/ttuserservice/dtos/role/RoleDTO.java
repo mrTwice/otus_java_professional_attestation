@@ -1,5 +1,10 @@
 package ru.otus.java.professional.yampolskiy.ttuserservice.dtos.role;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,7 +17,15 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "DTO для создания или обновления роли")
 public class RoleDTO {
+
+    @NotBlank
+    @Schema(description = "Имя роли", example = "MANAGER")
     private String name;
-    private Set<PermissionDTO> permissions;
+
+    @NotNull
+    @Size(min = 1, message = "Роль должна содержать хотя бы одно разрешение")
+    @Schema(description = "Набор разрешений, связанных с ролью")
+    private Set<@Valid PermissionDTO> permissions;
 }

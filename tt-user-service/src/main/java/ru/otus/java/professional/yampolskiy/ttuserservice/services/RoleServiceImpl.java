@@ -83,17 +83,16 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public Role createOrUpdateRoleWithPermissions(String roleName, Set<Permission> permissions) {
-        Role role = roleRepository.findByName(roleName)
-                .orElseGet(() -> Role.builder().name(roleName).permissions(new HashSet<>()).build());
+        return roleRepository.findByName(roleName).orElseGet(() -> {
+            Role newRole = Role.builder()
+                    .name(roleName)
+                    .permissions(permissionService.fetchOrCreatePermissions(permissions))
+                    .build();
 
-        Set<Permission> validatedPermissions = permissionService.fetchOrCreatePermissions(permissions);
-        role.setPermissions(validatedPermissions);
+            commonRoleValidator.validate(newRole);
+            roleUniqueValidator.validate(newRole);
 
-        if (role.getId() == null) {
-            commonRoleValidator.validate(role);
-            roleUniqueValidator.validate(role);
-        }
-
-        return roleRepository.save(role);
+            return roleRepository.save(newRole);
+        });
     }
 }

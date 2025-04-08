@@ -55,54 +55,122 @@ public class InitialClientsConfiguration {
         };
     }
 
-    @Bean
-    @DependsOn("entityManagerFactory")
-    public CommandLineRunner registerSwaggerClient(
-            SecurityRegisteredClientRepository registeredClientRepository,
-            PasswordEncoder passwordEncoder,
-            TokenSettings tokenSettings
-    ) {
-        return args -> {
-            if (registeredClientRepository.findByClientId("swagger-client") == null) {
-                LOGGER.info("📚 Registering swagger-client...");
+    @Configuration
+    public class SwaggerClientsRegistration {
 
-                Set<String> swaggerScopes = Set.of(
-                        // OIDC scopes
-                        "openid", "profile",
+        private static final Logger log = LoggerFactory.getLogger(SwaggerClientsRegistration.class);
 
-                        // Task access
-                        "task:create", "task:view", "task:update", "task:delete", "task:assign",
+        @Bean
+        @DependsOn("entityManagerFactory")
+        public CommandLineRunner registerSwaggerClientUserService(
+                SecurityRegisteredClientRepository registeredClientRepository,
+                PasswordEncoder passwordEncoder,
+                TokenSettings tokenSettings
+        ) {
+            return args -> {
+                String clientId = "swagger-client-user-service";
+                if (registeredClientRepository.findByClientId(clientId) == null) {
+                    log.info("📚 Registering {}...", clientId);
 
-                        // Comment access
-                        "comment:create", "comment:view", "comment:update", "comment:delete",
+                    RegisteredClient client = RegisteredClient.withId(UUID.randomUUID().toString())
+                            .clientId(clientId)
+                            .clientSecret(passwordEncoder.encode("swagger-secret"))
+                            .clientAuthenticationMethods(authMethods -> {
+                                authMethods.add(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
+                                authMethods.add(ClientAuthenticationMethod.CLIENT_SECRET_POST);
+                            })
+                            .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                            .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
+                            .redirectUri("http://localhost:9591/swagger-ui/oauth2-redirect.html")
+                            .scope("openid")
+                            .scope("profile")
+                            .scope("offline_access")
+                            .scope("user:view")
+                            .scope("user:update")
+                            .scope("user:delete")
+                            .scope("user:assign-roles")
+                            .scope("user:manage")
+                            .scope("role:create")
+                            .scope("role:view")
+                            .scope("role:update")
+                            .scope("role:delete")
+                            .scope("permission:create")
+                            .scope("permission:view")
+                            .scope("permission:update")
+                            .scope("permission:delete")
+                            .clientSettings(ClientSettings.builder()
+                                    .requireAuthorizationConsent(true)
+                                    .requireProofKey(false)
+                                    .build())
+                            .tokenSettings(tokenSettings)
+                            .build();
 
-                        // Attachment access
-                        "attachment:create", "attachment:view", "attachment:update", "attachment:delete",
+                    registeredClientRepository.save(client);
+                    log.info("✅ {} registered successfully", clientId);
+                }
+            };
+        }
 
-                        // Directory access
-                        "task-type:view", "task-status:view", "task-priority:view",
+        @Bean
+        @DependsOn("entityManagerFactory")
+        public CommandLineRunner registerSwaggerClientTaskService(
+                SecurityRegisteredClientRepository registeredClientRepository,
+                PasswordEncoder passwordEncoder,
+                TokenSettings tokenSettings
+        ) {
+            return args -> {
+                String clientId = "swagger-client-task-service";
+                if (registeredClientRepository.findByClientId(clientId) == null) {
+                    log.info("📚 Registering {}...", clientId);
 
-                        // User info
-                        "user:view"
-                );
+                    RegisteredClient client = RegisteredClient.withId(UUID.randomUUID().toString())
+                            .clientId(clientId)
+                            .clientSecret(passwordEncoder.encode("swagger-secret"))
+                            .clientAuthenticationMethods(authMethods -> {
+                                authMethods.add(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
+                                authMethods.add(ClientAuthenticationMethod.CLIENT_SECRET_POST);
+                            })
+                            .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                            .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
+                            .redirectUri("http://localhost:9590/swagger-ui/oauth2-redirect.html")
+                            .scope("openid")
+                            .scope("profile")
+                            .scope("offline_access")
+                            //
+                            .scope("task:create")
+                            .scope("task:view")
+                            .scope("task:update")
+                            .scope("task:delete")
+                            .scope("task:assign")
+                            //
+                            .scope("comment:create")
+                            .scope("comment:view")
+                            .scope("comment:update")
+                            .scope("comment:delete")
+                            //
+                            .scope("attachment:create")
+                            .scope("attachment:view")
+                            .scope("attachment:update")
+                            .scope("attachment:delete")
+                            //
+                            .scope("task-type:view")
+                            .scope("task-type:update")
+                            .scope("task-status:view")
+                            .scope("task-status:update")
+                            .scope("task-priority:view")
+                            .scope("task-priority:update")
+                            .clientSettings(ClientSettings.builder()
+                                    .requireAuthorizationConsent(true)
+                                    .requireProofKey(false)
+                                    .build())
+                            .tokenSettings(tokenSettings)
+                            .build();
 
-                RegisteredClient.Builder builder = RegisteredClient.withId(UUID.randomUUID().toString())
-                        .clientId("swagger-client")
-                        .clientSecret(passwordEncoder.encode("swagger-secret"))
-                        .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                        .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-                        .redirectUri("http://localhost:8081/swagger-ui/oauth2-redirect.html")
-                        .clientSettings(ClientSettings.builder()
-                                .requireAuthorizationConsent(true)
-                                .build())
-                        .tokenSettings(tokenSettings);
-
-                // ✅ Добавляем реальные scopes
-                swaggerScopes.forEach(builder::scope);
-
-                registeredClientRepository.save(builder.build());
-                LOGGER.info("✅ swagger-client registered successfully");
-            }
-        };
+                    registeredClientRepository.save(client);
+                    log.info("✅ {} registered successfully", clientId);
+                }
+            };
+        }
     }
+
 }

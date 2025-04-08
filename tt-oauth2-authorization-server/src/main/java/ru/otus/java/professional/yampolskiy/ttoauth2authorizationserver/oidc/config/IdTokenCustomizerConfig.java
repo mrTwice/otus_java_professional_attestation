@@ -15,6 +15,7 @@ public class IdTokenCustomizerConfig {
     @Bean
     public OAuth2TokenCustomizer<JwtEncodingContext> idTokenCustomizer(
             OidcUserInfoService userInfoService) {
+        log.info("🛠 idTokenCustomizer initializing ");
         return (context) -> {
             if (OidcParameterNames.ID_TOKEN.equals(context.getTokenType().getValue())) {
                 log.info("🎯 Customizing idtoken for client: {}", context.getRegisteredClient().getClientId());

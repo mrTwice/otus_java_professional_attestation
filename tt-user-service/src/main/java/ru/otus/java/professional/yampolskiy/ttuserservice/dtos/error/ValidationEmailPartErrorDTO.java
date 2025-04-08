@@ -1,26 +1,20 @@
 package ru.otus.java.professional.yampolskiy.ttuserservice.dtos.error;
 
 
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
+@Schema(name = "ValidationEmailPartErrorDTO", description = "Ошибка валидации конкретной части email-данных")
 public class ValidationEmailPartErrorDTO {
 
+    @Schema(description = "Поле с ошибкой", example = "email")
     private String field;
+
+    @Schema(description = "Сообщение об ошибке", example = "Некорректный формат email")
     private String message;
-
-    public String getField() {
-        return field;
-    }
-
-    public void setField(String field) {
-        this.field = field;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
 
     public ValidationEmailPartErrorDTO() {
     }
