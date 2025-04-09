@@ -1,5 +1,7 @@
 package ru.otus.java.professional.yampolskiy.ttuserservice.repositories;
 
+import lombok.NonNull;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,35 +15,32 @@ import java.util.UUID;
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
 
+    @EntityGraph(attributePaths = {"roles", "roles.permissions"})
     Optional<User> findByUsername(String username);
 
+    @EntityGraph(attributePaths = {"roles", "roles.permissions"})
     Optional<User> findByEmail(String email);
 
     boolean existsByUsername(String username);
 
     boolean existsByEmail(String email);
 
-    @Query("""
-    SELECT u FROM User u
-    LEFT JOIN FETCH  u.roles r
-    LEFT JOIN FETCH r.permissions p 
-    where u.active = true
-""")
+    @EntityGraph(attributePaths = {"roles", "roles.permissions"})
     List<User> findAllByActiveTrue();
 
+    @EntityGraph(attributePaths = {"roles", "roles.permissions"})
     Optional<User> findByOidcSubject(String oidcSubject);
 
     boolean existsByOidcSubject(String oidcSubject);
 
+    @EntityGraph(attributePaths = {"roles", "roles.permissions"})
     List<User> findByOidcProvider(String oidcProvider);
 
+    @EntityGraph(attributePaths = {"roles", "roles.permissions"})
     Optional<User> findByOidcSubjectAndOidcProvider(String oidcSubject, String oidcProvider);
 
-    @Query("""
-    SELECT u FROM User u
-    LEFT JOIN FETCH u.roles r
-    LEFT JOIN FETCH r.permissions
-    WHERE u.username = :username
-""")
-    Optional<User> findByUsernameWithRolesAndPermissions(@Param("username") String username);
+    @Override
+    @EntityGraph(attributePaths = {"roles", "roles.permissions"})
+    @NonNull
+    Optional<User> findById(@NonNull UUID uuid);
 }

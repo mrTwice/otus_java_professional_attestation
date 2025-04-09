@@ -2,71 +2,64 @@ package ru.otus.java.professional.yampolskiy.tttaskservice.attachments.security;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
+import ru.otus.java.professional.yampolskiy.tttaskservice.attachments.exceptions.AttachmentAccessDeniedException;
+import ru.otus.java.professional.yampolskiy.tttaskservice.common.securiry.AbstractAccessPolicy;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @Component("attachmentAccessPolicy")
-public class AttachmentAccessPolicy {
-
-    public boolean hasPermission(Authentication authentication, String permission) {
-        Jwt jwt = extractJwt(authentication);
-        if (jwt == null) return false;
-
-        List<String> permissions = jwt.getClaimAsStringList("permissions");
-        return permissions != null && permissions.contains(permission);
-    }
-
-    public boolean isSelf(Authentication authentication, UUID userId) {
-        UUID subject = getUserId(authentication);
-        return subject != null && subject.equals(userId);
-    }
-
-    public UUID getUserId(Authentication authentication) {
-        Jwt jwt = extractJwt(authentication);
-        if (jwt == null) return null;
-
-        try {
-            return UUID.fromString(jwt.getSubject());
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
-    }
+public class AttachmentAccessPolicy extends AbstractAccessPolicy {
 
     public boolean canCreateAttachment(Authentication authentication) {
         return hasPermission(authentication, "attachment:create");
+    }
+
+    public void checkCreateAttachment(Authentication authentication) {
+        if (!canCreateAttachment(authentication)) {
+            throw new AttachmentAccessDeniedException();
+        }
     }
 
     public boolean canViewAttachment(Authentication authentication) {
         return hasPermission(authentication, "attachment:view");
     }
 
+    public void checkViewAttachment(Authentication authentication) {
+        if (!canViewAttachment(authentication)) {
+            throw new AttachmentAccessDeniedException();
+        }
+    }
+
     public boolean canUpdateAttachment(Authentication authentication) {
         return hasPermission(authentication, "attachment:update");
+    }
+
+    public void checkUpdateAttachment(Authentication authentication) {
+        if (!canUpdateAttachment(authentication)) {
+            throw new AttachmentAccessDeniedException();
+        }
     }
 
     public boolean canDeleteAttachment(Authentication authentication) {
         return hasPermission(authentication, "attachment:delete");
     }
 
+    public void checkDeleteAttachment(Authentication authentication) {
+        if (!canDeleteAttachment(authentication)) {
+            throw new AttachmentAccessDeniedException();
+        }
+    }
+
     public boolean canViewAttachmentsOfUser(Authentication authentication, UUID userId) {
         return isSelf(authentication, userId) || canViewAttachment(authentication);
     }
 
-    private Jwt extractJwt(Authentication authentication) {
-        if (authentication instanceof JwtAuthenticationToken jwtAuth) {
-            return jwtAuth.getToken();
+    public void checkViewAttachmentsOfUser(Authentication authentication, UUID userId) {
+        if (!canViewAttachmentsOfUser(authentication, userId)) {
+            throw new AttachmentAccessDeniedException();
         }
-
-        Object principal = authentication.getPrincipal();
-        if (principal instanceof Jwt jwt) {
-            return jwt;
-        }
-
-        return null;
     }
 }
+

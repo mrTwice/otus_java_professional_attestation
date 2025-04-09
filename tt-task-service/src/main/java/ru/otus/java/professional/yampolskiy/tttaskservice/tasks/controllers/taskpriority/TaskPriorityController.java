@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.otus.java.professional.yampolskiy.tttaskservice.common.dto.ErrorDTO;
 import ru.otus.java.professional.yampolskiy.tttaskservice.tasks.dtos.taskpriority.TaskPriorityCreateRequest;
 import ru.otus.java.professional.yampolskiy.tttaskservice.tasks.dtos.taskpriority.TaskPriorityResponse;
 import ru.otus.java.professional.yampolskiy.tttaskservice.tasks.dtos.taskpriority.TaskPriorityShortResponse;

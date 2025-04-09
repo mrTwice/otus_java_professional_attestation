@@ -5,6 +5,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
+import ru.otus.java.professional.yampolskiy.tttaskservice.common.securiry.AbstractAccessPolicy;
+import ru.otus.java.professional.yampolskiy.tttaskservice.tasks.exceptions.task.TaskAccessDeniedException;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -13,73 +15,57 @@ import java.util.Objects;
 
 @Slf4j
 @Component("taskAccessPolicy")
-public class TaskAccessPolicy {
-
-    public boolean hasPermission(Authentication authentication, String permission) {
-        Jwt jwt = extractJwt(authentication);
-        if (jwt == null) return false;
-
-        List<String> permissions = getClaimAsList(jwt, "permissions");
-        List<String> scopes = jwt.getClaimAsStringList("scope");
-
-        log.debug("🔍 Checking permission [{}], permissions: {}, scopes: {}", permission, permissions, scopes);
-
-        return permissions.contains(permission) || (scopes != null && scopes.contains(permission));
-    }
-
-    public boolean hasAnyPermission(Authentication authentication, String... permissionsToCheck) {
-        Jwt jwt = extractJwt(authentication);
-        if (jwt == null) return false;
-
-        List<String> permissions = getClaimAsList(jwt, "permissions");
-        List<String> scopes = jwt.getClaimAsStringList("scope");
-
-        return Arrays.stream(permissionsToCheck)
-                .anyMatch(p -> permissions.contains(p) || (scopes != null && scopes.contains(p)));
-    }
+public class TaskAccessPolicy extends AbstractAccessPolicy {
 
     public boolean canCreateTask(Authentication auth) {
         return hasPermission(auth, "task:create");
+    }
+
+    public void checkCreateTask(Authentication auth) {
+        if (!canCreateTask(auth)) {
+            throw new TaskAccessDeniedException();
+        }
     }
 
     public boolean canViewTask(Authentication auth) {
         return hasPermission(auth, "task:view");
     }
 
+    public void checkViewTask(Authentication auth) {
+        if (!canViewTask(auth)) {
+            throw new TaskAccessDeniedException();
+        }
+    }
+
     public boolean canUpdateTask(Authentication auth) {
         return hasPermission(auth, "task:update");
+    }
+
+    public void checkUpdateTask(Authentication auth) {
+        if (!canUpdateTask(auth)) {
+            throw new TaskAccessDeniedException();
+        }
     }
 
     public boolean canDeleteTask(Authentication auth) {
         return hasPermission(auth, "task:delete");
     }
 
+    public void checkDeleteTask(Authentication auth) {
+        if (!canDeleteTask(auth)) {
+            throw new TaskAccessDeniedException();
+        }
+    }
+
     public boolean canAssignTask(Authentication auth) {
         return hasPermission(auth, "task:assign");
     }
 
-    private Jwt extractJwt(Authentication authentication) {
-        if (authentication instanceof JwtAuthenticationToken jwtAuth) {
-            return jwtAuth.getToken();
+    public void checkAssignTask(Authentication auth) {
+        if (!canAssignTask(auth)) {
+            throw new TaskAccessDeniedException();
         }
-
-        Object principal = authentication.getPrincipal();
-        if (principal instanceof Jwt jwt) {
-            return jwt;
-        }
-
-        return null;
-    }
-
-    private List<String> getClaimAsList(Jwt jwt, String claimName) {
-        Object claim = jwt.getClaims().get(claimName);
-        if (claim instanceof Collection<?> collection) {
-            return collection.stream()
-                    .filter(Objects::nonNull)
-                    .map(Object::toString)
-                    .toList();
-        }
-        return List.of();
     }
 }
+
 
