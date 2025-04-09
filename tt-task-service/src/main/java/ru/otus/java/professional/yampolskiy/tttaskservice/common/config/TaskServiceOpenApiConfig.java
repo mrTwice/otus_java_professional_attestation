@@ -22,7 +22,7 @@ import ru.otus.java.professional.yampolskiy.tttaskservice.common.dto.ErrorDTO;
         info = @Info(
                 title = "TT Task Service",
                 version = "1.0",
-                description = "User API"
+                description = "Task API"
         ),
         security = @SecurityRequirement(name = "oidc")
 )
